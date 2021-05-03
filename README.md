@@ -11,4 +11,6 @@ How to run:
   2) In either run the command `make`
   3) In one terminal run `make runs`
   4) In the other terminal run `make runc`
-  
+  5) `cd scripts`
+  6) `for f in *.py; do python3 "$f"; done`
+
