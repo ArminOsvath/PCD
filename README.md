@@ -5,6 +5,7 @@ Barbu Jonel + Osvath Armin
 Prerequisites: make, github
 
 How to run:
+
   0) You must be in the same directory as the makefile file 
   1) Open 2 terminals
   2) In either run the command `make`
