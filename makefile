@@ -17,4 +17,4 @@ server.o: server/server.c
 	gcc server/server.c lib/mylib.c -o server/server
 
 clean: 
-	rm -rf *.o *.jpg *.png all
+	rm -rf *.o *.jpg *.png images/*.jpg images/*.png all
