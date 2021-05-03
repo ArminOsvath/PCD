@@ -1,0 +1,5 @@
+./client/client
+./client/client.o
+./lib/lib.o
+./server/server.o
+./server/server
