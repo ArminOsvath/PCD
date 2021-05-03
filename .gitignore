@@ -1,5 +1,5 @@
 client/client
 client/client.o
-lib/lib.o
+lib/mylib
 server/server.o
 server/server
