@@ -1,5 +1,10 @@
 all: pcd
 
+runc:
+	client/client
+runs:
+	server/server
+
 pcd: client.o server.o mylib.o
 
 mylib.o: lib/mylib.c
