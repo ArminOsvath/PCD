@@ -2,7 +2,7 @@
 Barbu Jonel + Osvath Armin
 
 
-Prerequisites: make, github
+Prerequisites: make
 
 How to run:
 
