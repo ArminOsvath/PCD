@@ -39,6 +39,16 @@ int main()
     struct sockaddr_in servAddr, client;
     errCode retVal;
 
+    // set path
+    char srv[9] = "/server";
+    char proj[2048];
+    if (getcwd(proj, sizeof(proj)) != NULL) 
+    {
+        // printf("Current working dir: %s\n", proj);
+        strncat(proj, srv, 9);
+        // printf("srv: %s\n", proj);
+    }
+
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == socketDescriptor)
     {
