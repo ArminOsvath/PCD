@@ -5,30 +5,19 @@
 
 errCode myTransfer(int socketDescriptor)
 {
-    char buff[MAX];
     int n;
-    // infinite loop for chat
-    for (;;) {
-        bzero(buff, MAX);
-  
-        // read the message from client and copy it in buffer
-        read(socketDescriptor, buff, sizeof(buff));
-        // print buffer which contains the client contents
-        printf("Server echo <%d>: %s \n Server <%d> : ", getpid(), buff,  getpid());
-        bzero(buff, MAX);
-        n = 0;
-        // copy server message in the buffer
-        while ((buff[n++] = getchar()) != '\n')
-            ;
-  
-        // and send that buffer to client
-        write(socketDescriptor, buff, sizeof(buff));
-  
-        // if msg contains "Exit" then server exit and chat ended.
-        if (strncmp("exit", buff, 4) == 0) {
-            printf("Server Exit...\n");
-            break;
-        }
+    FILE *fp;
+    char *filename = "rcv.jpg";
+    char buffer[6500];
+
+    fp = fopen(filename, "w");
+    while (1) {
+    n = recv(socketDescriptor, buffer, 6500, 0);
+    if (n <= 0){
+        break;
+    }
+    fprintf(fp, "%s", buffer);
+    bzero(buffer, 6500);
     }
     return RET_NO_ERR;
 }
@@ -99,8 +88,22 @@ int main()
         verbose("[+] Connection success, client connected");
     }
 
+    int size;
+    read(connDescriptor, &size, sizeof(int));
 
-    myTransfer(connDescriptor);
+    char p_array[size];
+    char* current = p_array;
+    FILE* img = fopen("./server/image/img.jpg", "w");
+    int nb = read(connDescriptor, p_array, size);
+
+    while (nb > 0)
+    {
+        fwrite(p_array, 1, sizeof(p_array), img);
+        nb = read(connDescriptor, p_array, size);
+    } 
+    fclose(img);
+    // myTransfer(connDescriptor);
+
 
     close(socketDescriptor);
     

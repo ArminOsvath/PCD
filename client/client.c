@@ -1,4 +1,5 @@
 #include "/home/dj/VSC/C_Cpp/Project/lib/mylib.h"
+#include <sys/stat.h>
 
 #define MAX 80
 #define PORT 9326
@@ -6,26 +7,33 @@
 // external variables
 extern int isVerbose;
 
-errCode myTransfer(int socketDescriptor)
+errCode myTransfer(FILE* fp, char* filename, int socketDescriptor)
 {
-    char buff[MAX];
-    int n;
-    for (;;) {
-        bzero(buff, sizeof(buff));
-        printf("Client <%d> : ",getpid());
-        n = 0;
-        while ((buff[n++] = getchar()) != '\n')
-            ;
-        write(socketDescriptor, buff, sizeof(buff));
-        bzero(buff, sizeof(buff));
-        read(socketDescriptor, buff, sizeof(buff));
-        printf("Client echo <%d> : %s", getpid(), buff);
-        if ((strncmp(buff, "exit", 4)) == 0) {
-            printf("Client Exit...\n");
-            break;
-        }
+
+    fp = fopen(filename, "r");
+
+    int size;
+    fseek(fp, 0, SEEK_END);
+    size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    // printf("size: %ld \n", size);
+
+    if (fp == NULL) 
+    {
+        perror("[-]Error in reading file.");
+        exit(1);
     }
 
+    write (socketDescriptor, &size, sizeof(size));
+
+    char send_buffer[size];
+        
+    int nb = fread(send_buffer, 1, sizeof(send_buffer), fp);
+    while(!feof(fp))
+    {
+        write(socketDescriptor, send_buffer, sizeof(send_buffer));
+        nb = fread(send_buffer, 1, sizeof(send_buffer), fp);
+    }
     return RET_NO_ERR;
 }
 
@@ -35,6 +43,8 @@ int main()
     int socketDescriptor, connDescriptor;
     struct sockaddr_in servAddr;
     errCode retVal;
+    FILE* fp;
+    char* filename = "./client/image/Image.jpg";
 
     // seting up socket
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
@@ -66,8 +76,10 @@ int main()
         verbose("[+] Connection success.");
     }
 
-    retVal = myTransfer(socketDescriptor);
-    printf("%d", retVal);
+
+
+    retVal = myTransfer(fp, filename, socketDescriptor);
+    // printf("%d", retVal);
     
     close(socketDescriptor);
 }
