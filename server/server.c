@@ -3,22 +3,25 @@
 #define MAX 80
 #define PORT 9326
 
-errCode myTransfer(int socketDescriptor)
+errCode myRead(int connDescriptor)
 {
-    int n;
-    FILE *fp;
-    char *filename = "rcv.jpg";
-    char buffer[6500];
+    // get size
+    int size;
+    read(connDescriptor, &size, sizeof(int));
 
-    fp = fopen(filename, "w");
-    while (1) {
-    n = recv(socketDescriptor, buffer, 6500, 0);
-    if (n <= 0){
-        break;
-    }
-    fprintf(fp, "%s", buffer);
-    bzero(buffer, 6500);
-    }
+    // byte variables
+    char bytes[size];
+    FILE* img = fopen("./server/image/img.jpg", "w");
+
+    // read the bytes
+    int rByte = read(connDescriptor, bytes, size);
+    while (rByte > 0)
+    {
+        fwrite(bytes, 1, sizeof(bytes), img);
+        rByte = read(connDescriptor, bytes, size);
+    } 
+    fclose(img);
+
     return RET_NO_ERR;
 }
 
@@ -88,21 +91,7 @@ int main()
         verbose("[+] Connection success, client connected");
     }
 
-    int size;
-    read(connDescriptor, &size, sizeof(int));
-
-    char p_array[size];
-    char* current = p_array;
-    FILE* img = fopen("./server/image/img.jpg", "w");
-    int nb = read(connDescriptor, p_array, size);
-
-    while (nb > 0)
-    {
-        fwrite(p_array, 1, sizeof(p_array), img);
-        nb = read(connDescriptor, p_array, size);
-    } 
-    fclose(img);
-    // myTransfer(connDescriptor);
+    myRead(connDescriptor);
 
 
     close(socketDescriptor);

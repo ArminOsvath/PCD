@@ -7,32 +7,37 @@
 // external variables
 extern int isVerbose;
 
-errCode myTransfer(FILE* fp, char* filename, int socketDescriptor)
+errCode myWrite(int socketDescriptor)
 {
-
-    fp = fopen(filename, "r");
-
+    // file var
+    char* filename = "./client/image/Image.jpg";
+    FILE* img = fopen(filename, "r");
+    
+    // get size
     int size;
-    fseek(fp, 0, SEEK_END);
-    size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
+    fseek(img, 0, SEEK_END);
+    size = ftell(img);
+    fseek(img, 0, SEEK_SET);
+
     // printf("size: %ld \n", size);
 
-    if (fp == NULL) 
+    if (img == NULL) 
     {
-        perror("[-]Error in reading file.");
+        perror("[-] Error file might be empty or wrong file.");
         exit(1);
     }
 
+    // send the size
     write (socketDescriptor, &size, sizeof(size));
 
-    char send_buffer[size];
-        
-    int nb = fread(send_buffer, 1, sizeof(send_buffer), fp);
-    while(!feof(fp))
+    char buffer[size];
+
+    // send the bytes
+    int nb = fread(buffer, 1, sizeof(buffer), img);
+    while(!feof(img))
     {
-        write(socketDescriptor, send_buffer, sizeof(send_buffer));
-        nb = fread(send_buffer, 1, sizeof(send_buffer), fp);
+        write(socketDescriptor, buffer, sizeof(buffer));
+        nb = fread(buffer, 1, sizeof(buffer), img);
     }
     return RET_NO_ERR;
 }
@@ -43,8 +48,7 @@ int main()
     int socketDescriptor, connDescriptor;
     struct sockaddr_in servAddr;
     errCode retVal;
-    FILE* fp;
-    char* filename = "./client/image/Image.jpg";
+
 
     // seting up socket
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
@@ -78,7 +82,7 @@ int main()
 
 
 
-    retVal = myTransfer(fp, filename, socketDescriptor);
+    retVal = myWrite(socketDescriptor);
     // printf("%d", retVal);
     
     close(socketDescriptor);
