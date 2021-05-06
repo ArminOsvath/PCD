@@ -1,32 +1,39 @@
 #include "/home/dj/VSC/C_Cpp/Project/lib/mylib.h"
-#include <sys/stat.h>
 
 #define MAX 80
 #define PORT 9326
-
+#define SIZE 2048
 // external variables
 extern int isVerbose;
 
+char cli[SIZE] = "/client";
+char imgName[SIZE] = "Image.jpg";
+char cliPath[SIZE];
+char imgPath[SIZE];
+char fullPath[SIZE];
+
 errCode myWrite(int socketDescriptor)
 {
+
+
     // file var
-    char* filename = "./client/image/Image.jpg";
-    FILE* img = fopen(filename, "r");
+    FILE* img = fopen(fullPath, "r");
     
     // get size
     int size;
-    fseek(img, 0, SEEK_END);
-    size = ftell(img);
-    fseek(img, 0, SEEK_SET);
-
+    fseek(img, 0, SEEK_END); // img pointer to eof position
+    size = ftell(img); // number of bytes from the beginning of the file
+    fseek(img, 0, SEEK_SET); // img pointer to beginning
+    verbose("[+] Got the size of the image");
     // printf("size: %ld \n", size);
 
     if (img == NULL) 
     {
-        perror("[-] Error file might be empty or wrong file.");
+        verbose("[-] Error file might be empty or wrong file.");
         exit(1);
     }
 
+    verbose("[+] Writing the image");
     // send the size
     write (socketDescriptor, &size, sizeof(size));
 
@@ -39,16 +46,40 @@ errCode myWrite(int socketDescriptor)
         write(socketDescriptor, buffer, sizeof(buffer));
         nb = fread(buffer, 1, sizeof(buffer), img);
     }
+    verbose("[+] Writing the image success");
     return RET_NO_ERR;
+}
+
+void myPath()
+{
+    if (getcwd(cliPath, sizeof(cliPath)) != NULL) 
+    {
+        // printf("Current working dir: %s\n", proj);
+        strncat(cliPath, cli, SIZE);
+        // printf("proj: %s\n", proj);
+        verbose("[+] Set the PWD");
+        memset(cli, '\0', SIZE);
+        strncpy(cli, cliPath, SIZE);
+    }
+    else
+    {
+        verbose("[-] Failed to set the PWD");
+    }
+    printf("cliPath: %s \n", cliPath);
+    snprintf(imgPath, sizeof(imgPath)+sizeof(cliPath), "%s/image", cliPath);
+    snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
+    printf("imgPath: %s \n", imgPath);
+    printf("fullPath: %s \n", fullPath);
+
 }
 
 int main()
 {
     // variables
+    // isVerbose = 0;
     int socketDescriptor, connDescriptor;
     struct sockaddr_in servAddr;
     errCode retVal;
-
 
     // seting up socket
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
@@ -81,8 +112,9 @@ int main()
     }
 
 
-
-    retVal = myWrite(socketDescriptor);
+    send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
+    myPath();
+    myWrite(socketDescriptor);
     // printf("%d", retVal);
     
     close(socketDescriptor);

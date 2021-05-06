@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 
 typedef enum errCode
 {
@@ -15,7 +16,6 @@ typedef enum errCode
 
     RET_ERR = 5
 }errCode;
-
 
 errCode verbose(char* myStr);
 

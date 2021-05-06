@@ -2,17 +2,29 @@
 
 #define MAX 80
 #define PORT 9326
+#define SIZE 2048
+
+extern int isVerbose;
+char srv[SIZE] = "/server";
+char imgName[SIZE];
+char srvPath[SIZE];
+char imgPath[SIZE];
+char fullPath[SIZE];
 
 errCode myRead(int connDescriptor)
 {
     // get size
+
+
+
     int size;
     read(connDescriptor, &size, sizeof(int));
-
+    verbose("[+] Reading the size");
     // byte variables
     char bytes[size];
-    FILE* img = fopen("./server/image/img.jpg", "w");
-
+    FILE* img = fopen(fullPath, "w");
+    verbose("[+] Opened the image successfully");
+    
     // read the bytes
     int rByte = read(connDescriptor, bytes, size);
     while (rByte > 0)
@@ -22,24 +34,41 @@ errCode myRead(int connDescriptor)
     } 
     fclose(img);
 
+    verbose("[+] Wrote the image successfully");
     return RET_NO_ERR;
+}
+
+void myPath()
+{
+    if (getcwd(srvPath, sizeof(srvPath)) != NULL) 
+    {
+        // printf("Current working dir: %s\n", proj);
+        strncat(srvPath, srv, SIZE);
+        // printf("proj: %s\n", proj);
+        verbose("[+] Set the PWD");
+        memset(srv, '\0', SIZE);
+        strncpy(srv, srvPath, SIZE);
+    }
+    else
+    {
+        verbose("[-] Failed to set the PWD");
+    }
+    printf("srvPath: %s \n", srvPath);
+    snprintf(imgPath, sizeof(imgPath)+sizeof(srvPath), "%s/image", srvPath);
+    snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
+    printf("imgPath: %s \n", imgPath);
+    printf("fullPath: %s \n", fullPath);
+
 }
 
 int main()
 {
+    // isVerbose = 0;
     int socketDescriptor, connDescriptor, len;
     struct sockaddr_in servAddr, client;
     errCode retVal;
 
     // set path
-    char srv[9] = "/server";
-    char proj[2048];
-    if (getcwd(proj, sizeof(proj)) != NULL) 
-    {
-        // printf("Current working dir: %s\n", proj);
-        strncat(proj, srv, 9);
-        // printf("srv: %s\n", proj);
-    }
 
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == socketDescriptor)
@@ -90,7 +119,8 @@ int main()
     {
         verbose("[+] Connection success, client connected");
     }
-
+    recv(connDescriptor, &imgName, sizeof(imgName), 0);
+    myPath();
     myRead(connDescriptor);
 
 
