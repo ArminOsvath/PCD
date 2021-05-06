@@ -297,18 +297,6 @@ int main(int argc, char* argv[])
     myPath();
     printf("printf filcounter %d \n", myFilter.filterCounter);
     myWrite(socketDescriptor);
-
-    int fillersize = myFilter.filterCounter;
-    printf("Filersize %\n", fillersize);
-
-    // char dirName[SIZE];
-    // for (int i = 0; i < fillersize; i++)
-    // {
-    //     recv(socketDescriptor, &dirName, sizeof(dirName), 0);
-    //     printf("%s\n",dirName);
-    // }
-
-    // printf("%d", retVal);
     
     close(socketDescriptor);
 }
