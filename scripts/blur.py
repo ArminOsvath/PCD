@@ -1,10 +1,25 @@
 
 import cv2
-img = cv2.imread('/home/dj/VSC/C_Cpp/Project/Image.jpg')
+import argparse
+
+scriptVar = '_blur.'
+
+parser = argparse.ArgumentParser(description ='Description')
+parser.add_argument('srvPath')
+parser.add_argument('pathToImg')
+parser.add_argument('imgName')
+
+args = parser.parse_args()
+
+imgName = args.imgName.split('.')[0]
+imgExtension = args.imgName.split('.')[1]
+pathToSave = args.srvPath + '/output/' + imgName + scriptVar + imgExtension 
+
+img = cv2.imread(args.pathToImg)
 
 #blur 5x5
 blur = cv2.blur(img, ksize=(5,5), borderType=cv2.BORDER_DEFAULT)
-cv2.imwrite("/home/dj/VSC/C_Cpp/Project/images/blur.jpg", blur)
+cv2.imwrite(pathToSave, blur)
 
 
 cv2.waitKey()

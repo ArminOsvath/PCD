@@ -1,17 +1,34 @@
 import cv2;
 import numpy as np;
-OG = cv2.imread('/home/dj/VSC/C_Cpp/Project/Image2.png',0)
+import argparse
+
+scriptVar1 = '_contour.'
+scriptVar2 = '_fill.'
+
+
+parser = argparse.ArgumentParser(description ='Description')
+parser.add_argument('srvPath')
+parser.add_argument('pathToImg')
+parser.add_argument('imgName')
+
+args = parser.parse_args()
+
+imgName = args.imgName.split('.')[0]
+imgExtension = args.imgName.split('.')[1]
+pathToSave1 = args.srvPath + '/output/' + imgName + scriptVar1 + imgExtension 
+pathToSave2 = args.srvPath + '/output/' + imgName + scriptVar2 + imgExtension 
+
+img = cv2.imread(args.pathToImg)
 
 #kernel
 kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
 #dilatare
-dilate = cv2.dilate(OG, kernel)
+dilate = cv2.dilate(img, kernel)
 #eroziune
-erode = cv2.erode(OG, kernel)
+erode = cv2.erode(img, kernel)
 #final
 image = cv2.absdiff(dilate, erode)
 
-img = cv2.imread("/home/dj/VSC/C_Cpp/Project/Image2.png")
 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 #margini
@@ -23,7 +40,7 @@ fill_contour = edged.copy()
 for contour in contours:
     cv2.fillPoly(fill_contour, pts=[contour], color=(255,255,255))
 
-cv2.imwrite("/home/dj/VSC/C_Cpp/Project/images/contour.jpg", image)
-cv2.imwrite("/home/dj/VSC/C_Cpp/Project/images/fill.jpg", fill_contour)
+cv2.imwrite(pathToSave1, image)
+cv2.imwrite(pathToSave2, fill_contour)
 
 cv2.waitKey(0)

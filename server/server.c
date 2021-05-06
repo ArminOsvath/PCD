@@ -10,6 +10,46 @@ char imgName[SIZE];
 char srvPath[SIZE];
 char imgPath[SIZE];
 char fullPath[SIZE];
+char dirpath[SIZE];
+
+
+void myWrite(int connDescriptor, char* dir)
+{
+    char sentFile[SIZE];
+    printf("Dir val %s\n", dir);
+    snprintf(sentFile, sizeof(dirpath)+sizeof(dirpath), "%s%s", dirpath, dir);
+    printf("Sendfile %s\n", sentFile);
+    FILE* img = fopen(sentFile, "r");
+    
+    // get size
+    int size;
+    fseek(img, 0, SEEK_END); // img pointer to eof position
+    size = ftell(img); // number of bytes from the beginning of the file
+    fseek(img, 0, SEEK_SET); // img pointer to beginning
+    verbose("[+] Got the size of the image");
+    // printf("size: %ld \n", size);
+
+    if (img == NULL) 
+    {
+        verbose("[-] Error file might be empty or wrong file.");
+        exit(1);
+    }
+
+    verbose("[+] Writing the image");
+    // send the size
+    write (connDescriptor, &size, sizeof(size));
+
+    char buffer[size];
+
+    // send the bytes
+    int nb = fread(buffer, 1, sizeof(buffer), img);
+    while(!feof(img))
+    {
+        write(connDescriptor, buffer, sizeof(buffer));
+        nb = fread(buffer, 1, sizeof(buffer), img);
+    }
+    verbose("[+] Writing the image success");
+}
 
 errCode myRead(int connDescriptor)
 {
@@ -54,7 +94,9 @@ void myPath()
     printf("[Path]: srvPath: %s \n", srvPath);
     snprintf(imgPath, sizeof(imgPath)+sizeof(srvPath), "%s/image", srvPath);
     snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
+    snprintf(dirpath, sizeof(dirpath)+sizeof(srvPath), "%s/%s", srvPath, "output/");
     printf("[Path]: imgPath: %s \n", imgPath);
+    printf("[Path]: dirpath: %s \n", dirpath);
     printf("[Path]: fullPath: %s \n", fullPath);
 
 }
@@ -69,7 +111,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/gray.py", NULL);
+                verbose("Executing script: gray");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/gray.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isBinary)
@@ -78,7 +123,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is binary", NULL);
+                verbose("Executing script: binary");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/binary.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isBlur)
@@ -87,7 +135,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isblur", NULL);
+                verbose("Executing script: blur");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/blur.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isContour)
@@ -96,7 +147,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isContour", NULL);
+                verbose("Executing script: contourfill");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/contourfill.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isEqHis)
@@ -105,7 +159,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isEqHis", NULL);
+                verbose("Executing script: equalizedhistogram");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/equalizedhistogram.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isGblur)
@@ -114,7 +171,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isGblur", NULL);
+                verbose("Executing script: gblur");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/gblur.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isHSV)
@@ -123,7 +183,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isHSV", NULL);
+                verbose("Executing script: hsv");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/hsv.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isMedian)
@@ -132,7 +195,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isMedian", NULL);
+                verbose("Executing script: median");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/median.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
         else if(myFilter.isSobel)
@@ -141,7 +207,10 @@ void forkIt(filter myFilter)
             pid_t pid = fork();
             if (0 == pid)
             {
-                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isSobel", NULL);
+                verbose("Executing script: sobel");
+                fflush(stdout);
+                execlp("/usr/bin/python3", "/usr/bin/python3",  "./scripts/sobel.py", srvPath, fullPath, imgName, NULL);
+                printf("Execution error has happened \n");
             }
         }
     }
@@ -203,6 +272,7 @@ int main(int argc, char* argv[])
     {
         verbose("[+] Connection success, client connected");
     }
+
     recv(connDescriptor, &imgName, sizeof(imgName), 0);
     recv(connDescriptor, &myFilter, sizeof(myFilter), 0);
     printf("[Connection]: Filter counter  %d \n", myFilter.filterCounter);
@@ -230,6 +300,24 @@ int main(int argc, char* argv[])
 
     printf("I should be last\n");
 
+    
+    // DIR* d;
+    // struct dirent* dir;
+    // char dirName[SIZE];
+    // d = opendir(dirpath);
+    // if(d)
+    // {
+    //     while ((dir = readdir(d)) != NULL)
+    //     {
+    //         if(dir->d_type == DT_REG)
+    //         {
+    //             strncpy(dirName, dir->d_name, sizeof(dir));
+    //             printf("dirname %s\n",dirName);
+    //             send(connDescriptor, &dir->d_name, sizeof(dir->d_name), 0); //send img name
+    //             bzero(dirName,sizeof(dirName));
+    //         }
+    //     }
+    // }
     close(socketDescriptor);
     
 }

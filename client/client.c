@@ -11,7 +11,33 @@ char imgName[SIZE];
 char cliPath[SIZE];
 char imgPath[SIZE];
 char fullPath[SIZE];
+char dirpath[SIZE];
 
+void myRead(int socketDescriptor, char dir[SIZE])
+{
+    char sentFile[SIZE];
+    snprintf(sentFile, sizeof(dirpath)+sizeof(dirpath), "%s%s", dirpath, dir);
+
+    int size;
+    read(socketDescriptor, &size, sizeof(int));
+    verbose("[+] Reading the size");
+
+    // byte variables
+    char bytes[size];
+    FILE* img = fopen(sentFile, "w");
+    verbose("[+] Opened the image successfully");
+    
+    // read the bytes
+    int rByte = read(socketDescriptor, bytes, size);
+    while (rByte > 0)
+    {
+        fwrite(bytes, 1, sizeof(bytes), img);
+        rByte = read(socketDescriptor, bytes, size);
+    } 
+    fclose(img);
+
+    verbose("[+] Wrote the image successfully");
+}
 errCode myWrite(int socketDescriptor)
 {
     // file var
@@ -66,13 +92,15 @@ void myPath()
     printf("[Path]: cliPath: %s \n", cliPath);
     snprintf(imgPath, sizeof(imgPath)+sizeof(cliPath), "%s/image", cliPath);
     snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
+    snprintf(dirpath, sizeof(dirpath)+sizeof(cliPath), "%s/%s", cliPath, "output/");
     printf("[Path]: imgPath: %s \n", imgPath);
+    printf("[Path]: dirpath: %s \n", dirpath);
     printf("[Path]: fullPath: %s \n", fullPath);
 
 }
 int print_usage()
 {
-    printf("Wrong usage, please follow this example:\nclient/client -I Img2.jpg -v -g -b -m -h\n");
+    printf("Wrong usage, please follow this example:\nclient/client -I Img2.jpg -v 1 -g -b -m -h\n");
     printf("-I /path : Image required  \n");
     printf("-v 1/0 : Verbose required \n");
     printf("-b : binary optional\n");
@@ -158,7 +186,7 @@ filter getArgs(int argc, char* argv[])
                 {
                     myFilter.isContour = 1;
                     verbose("[Case]: Case c set");
-                    myFilter.filterCounter++;
+                    myFilter.filterCounter = myFilter.filterCounter+2;
                 }
                 break;
             case 'e':
@@ -229,6 +257,7 @@ int main(int argc, char* argv[])
     struct sockaddr_in servAddr;
     errCode retVal;
     filter myFilter;
+    myFilter.filterCounter = 0;
 
     myFilter=getArgs(argc, argv);
     // seting up socket
@@ -261,11 +290,24 @@ int main(int argc, char* argv[])
         verbose("[+] Connection success.");
     }
 
+        printf("printf filcounter %d \n", myFilter.filterCounter);
 
     send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
     send(socketDescriptor, &myFilter, sizeof(myFilter), 0); //send filters
     myPath();
+    printf("printf filcounter %d \n", myFilter.filterCounter);
     myWrite(socketDescriptor);
+
+    int fillersize = myFilter.filterCounter;
+    printf("Filersize %\n", fillersize);
+
+    // char dirName[SIZE];
+    // for (int i = 0; i < fillersize; i++)
+    // {
+    //     recv(socketDescriptor, &dirName, sizeof(dirName), 0);
+    //     printf("%s\n",dirName);
+    // }
+
     // printf("%d", retVal);
     
     close(socketDescriptor);

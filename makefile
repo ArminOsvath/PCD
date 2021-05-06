@@ -2,6 +2,8 @@ all: pcd
 
 runc:
 	client/client -I Img2.jpg
+runa:
+	client/client -I unnamed.jpg -v 1 -b -B -c -e -G -g -h -m -s
 runs:
 	server/server
 
@@ -20,4 +22,4 @@ git:
 	git push -u origin main
 
 clean: 
-	rm -rf *.o *.jpg *.png images/*.jpg images/*.png all
+	rm -rf ./server/output/* ./server/image/* ./client/output/*

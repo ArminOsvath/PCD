@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <ctype.h>
 #include <string.h>
 #include <getopt.h>
@@ -12,7 +13,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <arpa/inet.h>
-
 typedef struct filter
 {
     bool isGray;
