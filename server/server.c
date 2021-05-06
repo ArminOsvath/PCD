@@ -60,100 +60,92 @@ void myPath()
 }
 void forkIt(filter myFilter)
 {
-    pid_t ppid = fork();
     int status;
-
-    if(0 == ppid)
+    for(int i = 0; i < myFilter.filterCounter; i++)
     {
-        for(int i; i < myFilter.filterCounter; i++)
+        if(myFilter.isGray)
         {
-            if(myFilter.isGray)
+            myFilter.isGray = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isGray = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    fprintf(stderr,"[C]: Parent : %ld, Me = %ld isGray\n",(long)getppid(),(long)getpid());
-                    execl("/usr/bin/echo", "echo", "this is isGray", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/gray.py", NULL);
             }
-            else if(myFilter.isBinary)
+        }
+        else if(myFilter.isBinary)
+        {
+            myFilter.isBinary = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isBinary = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    fprintf(stderr,"[C]: Parent : %ld, Me = %ld isBinary\n",(long)getppid(),(long)getpid());
-                    execl("/usr/bin/echo", "echo", "this is binary", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is binary", NULL);
             }
-            else if(myFilter.isBlur)
+        }
+        else if(myFilter.isBlur)
+        {
+            myFilter.isBlur = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isBlur = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    fprintf(stderr,"[C]: Parent : %ld, Me = %ld isBlur\n",(long)getppid(),(long)getpid());
-                    execl("/usr/bin/echo", "echo", "this is isblur", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isblur", NULL);
             }
-            else if(myFilter.isContour)
+        }
+        else if(myFilter.isContour)
+        {
+            myFilter.isContour = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isContour = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    execl("/usr/bin/echo", "echo", "this is isContour", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isContour", NULL);
             }
-            else if(myFilter.isEqHis)
+        }
+        else if(myFilter.isEqHis)
+        {
+            myFilter.isEqHis = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isEqHis = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    execl("/usr/bin/echo", "echo", "this is isEqHis", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isEqHis", NULL);
             }
-            else if(myFilter.isGblur)
+        }
+        else if(myFilter.isGblur)
+        {
+            myFilter.isGblur = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isGblur = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    execl("/usr/bin/echo", "echo", "this is isGblur", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isGblur", NULL);
             }
-            else if(myFilter.isHSV)
+        }
+        else if(myFilter.isHSV)
+        {
+            myFilter.isHSV = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isHSV = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    execl("/usr/bin/echo", "echo", "this is isHSV", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isHSV", NULL);
             }
-            else if(myFilter.isMedian)
+        }
+        else if(myFilter.isMedian)
+        {
+            myFilter.isMedian = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isMedian = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    execl("/usr/bin/echo", "echo", "this is isMedian", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isMedian", NULL);
             }
-            else if(myFilter.isSobel)
+        }
+        else if(myFilter.isSobel)
+        {
+            myFilter.isSobel = 0;
+            pid_t pid = fork();
+            if (0 == pid)
             {
-                myFilter.isSobel = 0;
-                pid_t pid = fork();
-                if (0 == pid)
-                {
-                    execl("/usr/bin/echo", "echo", "this is isSobel", NULL);
-                }
+                execlp("/usr/bin/python3", "/usr/bin/python3", "this is isSobel", NULL);
             }
         }
     }
-    while((ppid = wait(&status) > 0));
+    while(wait(&status) > 0);
     exit(0);
 }
 int main(int argc, char* argv[])
@@ -225,6 +217,7 @@ int main(int argc, char* argv[])
     }
     else if(0 == pid)
     {
+        printf("preparing for forkit inside main\n");
         forkIt(myFilter);
     }
     else
