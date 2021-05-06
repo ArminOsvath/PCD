@@ -4,10 +4,38 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <getopt.h>
+#include <fcntl.h>
+#include <stdbool.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <arpa/inet.h>
 
+typedef struct filter
+{
+    bool isGray;
+    bool isBinary;
+    bool isBlur;
+    bool isContour;
+    bool isEqHis;
+    bool isGblur;
+    bool isHSV;
+    bool isMedian;
+    bool isSobel;
+}filter;
+
+typedef enum usageErr
+{
+    USG_OK      = 0,
+    USG_NO_ARG  = 1,
+    USG_W_ARG   = 2,
+    USG_W_NUM   = 3,
+    USG_MANY    = 4,
+
+    USG_ERR     = 5,
+
+}usageErr;
 typedef enum errCode
 {
     RET_NO_ERR = 0,

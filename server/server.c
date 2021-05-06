@@ -14,12 +14,10 @@ char fullPath[SIZE];
 errCode myRead(int connDescriptor)
 {
     // get size
-
-
-
     int size;
     read(connDescriptor, &size, sizeof(int));
     verbose("[+] Reading the size");
+
     // byte variables
     char bytes[size];
     FILE* img = fopen(fullPath, "w");
@@ -61,7 +59,7 @@ void myPath()
 
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     // isVerbose = 0;
     int socketDescriptor, connDescriptor, len;
