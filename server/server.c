@@ -51,22 +51,19 @@ void myPath()
     {
         verbose("[-] Failed to set the PWD");
     }
-    printf("srvPath: %s \n", srvPath);
+    printf("[Path]: srvPath: %s \n", srvPath);
     snprintf(imgPath, sizeof(imgPath)+sizeof(srvPath), "%s/image", srvPath);
     snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
-    printf("imgPath: %s \n", imgPath);
-    printf("fullPath: %s \n", fullPath);
+    printf("[Path]: imgPath: %s \n", imgPath);
+    printf("[Path]: fullPath: %s \n", fullPath);
 
 }
 
 int main(int argc, char* argv[])
 {
-    // isVerbose = 0;
     int socketDescriptor, connDescriptor, len;
     struct sockaddr_in servAddr, client;
-    errCode retVal;
-
-    // set path
+    filter myFilter;
 
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == socketDescriptor)
@@ -118,6 +115,8 @@ int main(int argc, char* argv[])
         verbose("[+] Connection success, client connected");
     }
     recv(connDescriptor, &imgName, sizeof(imgName), 0);
+    recv(connDescriptor, &myFilter, sizeof(myFilter), 0);
+    printf("[Connection]: Filter counter  %d \n", myFilter.filterCounter);
     myPath();
     myRead(connDescriptor);
 

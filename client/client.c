@@ -63,21 +63,35 @@ void myPath()
     {
         verbose("[-] Failed to set the PWD");
     }
-    printf("cliPath: %s \n", cliPath);
+    printf("[Path]: cliPath: %s \n", cliPath);
     snprintf(imgPath, sizeof(imgPath)+sizeof(cliPath), "%s/image", cliPath);
     snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
-    printf("imgPath: %s \n", imgPath);
-    printf("fullPath: %s \n", fullPath);
+    printf("[Path]: imgPath: %s \n", imgPath);
+    printf("[Path]: fullPath: %s \n", fullPath);
 
 }
-
+int print_usage(usageErr errnum)
+{
+    printf("Wrong usage, please follow this example:\nclient/client -I Img2.jpg -v -g -b -m -h\n");
+    printf("-I /path : Image required  \n");
+    printf("-v 1/0 : Verbose required \n");
+    printf("-b : binary optional\n");
+    printf("-B : blur optional\n");
+    printf("-c : contour optional\n");
+    printf("-e : equalized historigram optional\n");
+    printf("-G : gaussian blur optional\n");
+    printf("-g : gray optional\n");
+    printf("-h : HSV optional\n");
+    printf("-m : median optional\n");
+    printf("-s : sobel optional\n");
+    exit(0);
+}
 filter getArgs(int argc, char* argv[])
 {
     usageErr errnum;
     filter myFilter;
     int opt; //getlong integer
 
-    int argCounter = 0; //setare flaguri si variabile ca fiind negative
     //creere structura pentru getopt_long
     static struct option long_options[] =
     {
@@ -106,86 +120,91 @@ filter getArgs(int argc, char* argv[])
             case 'I':
                 //variabila se transforma intr-un numar pozitiv
                 strncpy(imgName, optarg, sizeof(imgName));
-                verbose("Case I set");
+                verbose("[Case]: Case I set");
                 errnum = USG_OK;
                 break;
             case 'v':
                 if(atoi(optarg))
                 {
                     isVerbose = 1;
-                    verbose("Case verbose set");
+                    verbose("[Case]: Case verbose set");
+                }
+                else
+                {
+                    verbose("[Case]: wrong verbose something");
+                    print_usage(USG_VERBOSE);
                 }
                 break;
             case 'b':
                 if(!myFilter.isBinary)
                 {
                     myFilter.isBinary = 1;
-                    verbose("Case b set");
-                    argCounter++;
+                    verbose("[Case]: Case b set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 'B':
                 if(!myFilter.isBlur)
                 {
                     myFilter.isBlur = 1;
-                    verbose("Case B set");
-                    argCounter++;
+                    verbose("[Case]: Case B set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 'c':
                 if(!myFilter.isContour)
                 {
                     myFilter.isContour = 1;
-                    verbose("Case c set");
-                    argCounter++;
+                    verbose("[Case]: Case c set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 'e':
                 if(!myFilter.isEqHis)
                 {
                     myFilter.isEqHis = 1;
-                    verbose("Case e set");
-                    argCounter++;
+                    verbose("[Case]: Case e set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 'G':
                 if(!myFilter.isGblur)
                 {
                     myFilter.isGblur = 1;
-                    verbose("Case G set");
-                    argCounter++;
+                    verbose("[Case]: Case G set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 'g':
                 if(!myFilter.isGray)
                 {
                     myFilter.isGray = 1;
-                    verbose("Case g set");
-                    argCounter++;
+                    verbose("[Case]: Case g set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 'h':
                 if(!myFilter.isHSV)
                 {
                     myFilter.isHSV = 1;
-                    verbose("Case h set");
-                    argCounter++;
+                    verbose("[Case]: Case h set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 'm':
                 if(!myFilter.isMedian)
                 {
                     myFilter.isMedian = 1;
-                    verbose("Case m set");
-                    argCounter++;
+                    verbose("[Case]: Case m set");
+                    myFilter.filterCounter++;
                 }
                 break;
             case 's':
                 if(!myFilter.isSobel)
                 {
                     myFilter.isSobel = 1;
-                    verbose("Case s set");
-                    argCounter++;
+                    verbose("[Case]: Case s set");
+                    myFilter.filterCounter++;
                 }
                 break;
             default: 
@@ -193,22 +212,9 @@ filter getArgs(int argc, char* argv[])
                 errnum = USG_W_ARG;
         }
     }
-    printf("Inside getargs imgname = %s \n", imgName);
-    printf("[Arguments]: %d filters required\n", argCounter);
+    // printf("[Arguments]: Inside getargs imgname = %s \n", imgName);
+    // printf("[Arguments]: %d filters required\n", myFilter.filterCounter);
 
-    // printf("errnum %d \n", errnum);
-    // int errno = print_usage(errnum);
-
-    //0 pentru ca valoarea lui  usg_ok
-    // if (0 == errno)
-    // {
-    //     return p1;
-    // }
-    // else
-    // {
-    //     fprintf(stderr,"Error num: %d usage: ./lab05t01 -N [2 <= val <= 9]\n", errno);
-    //     exit(0);
-    // }
     return myFilter;
 }
 
@@ -255,6 +261,7 @@ int main(int argc, char* argv[])
 
 
     send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
+    send(socketDescriptor, &myFilter, sizeof(myFilter), 0); //send filters
     myPath();
     myWrite(socketDescriptor);
     // printf("%d", retVal);

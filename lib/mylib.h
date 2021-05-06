@@ -23,17 +23,18 @@ typedef struct filter
     bool isHSV;
     bool isMedian;
     bool isSobel;
+    int filterCounter;
 }filter;
 
 typedef enum usageErr
 {
-    USG_OK      = 0,
-    USG_NO_ARG  = 1,
-    USG_W_ARG   = 2,
-    USG_W_NUM   = 3,
-    USG_MANY    = 4,
+    USG_OK       = 0,
+    USG_VERBOSE  = 1,
+    USG_W_ARG    = 2,
+    USG_W_NUM    = 3,
+    USG_MANY     = 4,
 
-    USG_ERR     = 5,
+    USG_ERR      = 5,
 
 }usageErr;
 typedef enum errCode
