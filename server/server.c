@@ -58,7 +58,104 @@ void myPath()
     printf("[Path]: fullPath: %s \n", fullPath);
 
 }
+void forkIt(filter myFilter)
+{
+    pid_t ppid = fork();
+    int status;
 
+    if(0 == ppid)
+    {
+        for(int i; i < myFilter.filterCounter; i++)
+        {
+            if(myFilter.isGray)
+            {
+                myFilter.isGray = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    fprintf(stderr,"[C]: Parent : %ld, Me = %ld isGray\n",(long)getppid(),(long)getpid());
+                    execl("/usr/bin/echo", "echo", "this is isGray", NULL);
+                }
+            }
+            else if(myFilter.isBinary)
+            {
+                myFilter.isBinary = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    fprintf(stderr,"[C]: Parent : %ld, Me = %ld isBinary\n",(long)getppid(),(long)getpid());
+                    execl("/usr/bin/echo", "echo", "this is binary", NULL);
+                }
+            }
+            else if(myFilter.isBlur)
+            {
+                myFilter.isBlur = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    fprintf(stderr,"[C]: Parent : %ld, Me = %ld isBlur\n",(long)getppid(),(long)getpid());
+                    execl("/usr/bin/echo", "echo", "this is isblur", NULL);
+                }
+            }
+            else if(myFilter.isContour)
+            {
+                myFilter.isContour = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    execl("/usr/bin/echo", "echo", "this is isContour", NULL);
+                }
+            }
+            else if(myFilter.isEqHis)
+            {
+                myFilter.isEqHis = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    execl("/usr/bin/echo", "echo", "this is isEqHis", NULL);
+                }
+            }
+            else if(myFilter.isGblur)
+            {
+                myFilter.isGblur = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    execl("/usr/bin/echo", "echo", "this is isGblur", NULL);
+                }
+            }
+            else if(myFilter.isHSV)
+            {
+                myFilter.isHSV = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    execl("/usr/bin/echo", "echo", "this is isHSV", NULL);
+                }
+            }
+            else if(myFilter.isMedian)
+            {
+                myFilter.isMedian = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    execl("/usr/bin/echo", "echo", "this is isMedian", NULL);
+                }
+            }
+            else if(myFilter.isSobel)
+            {
+                myFilter.isSobel = 0;
+                pid_t pid = fork();
+                if (0 == pid)
+                {
+                    execl("/usr/bin/echo", "echo", "this is isSobel", NULL);
+                }
+            }
+        }
+    }
+    while((ppid = wait(&status) > 0));
+    exit(0);
+}
 int main(int argc, char* argv[])
 {
     int socketDescriptor, connDescriptor, len;
@@ -120,6 +217,25 @@ int main(int argc, char* argv[])
     myPath();
     myRead(connDescriptor);
 
+    pid_t pid = fork();
+    int status;
+    if(0 > pid)
+    {
+        verbose("error in making pid1");
+    }
+    else if(0 == pid)
+    {
+        forkIt(myFilter);
+    }
+    else
+    {
+        while((pid = wait(&status) > 0))
+        {
+            fprintf(stderr,"[C]: Parent : %ld, Me = %ld you are outside\n",(long)getppid(),(long)getpid());
+        };
+    }
+
+    printf("I should be last\n");
 
     close(socketDescriptor);
     

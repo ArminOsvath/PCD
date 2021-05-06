@@ -70,7 +70,7 @@ void myPath()
     printf("[Path]: fullPath: %s \n", fullPath);
 
 }
-int print_usage(usageErr errnum)
+int print_usage()
 {
     printf("Wrong usage, please follow this example:\nclient/client -I Img2.jpg -v -g -b -m -h\n");
     printf("-I /path : Image required  \n");
@@ -119,9 +119,11 @@ filter getArgs(int argc, char* argv[])
         {
             case 'I':
                 //variabila se transforma intr-un numar pozitiv
-                strncpy(imgName, optarg, sizeof(imgName));
-                verbose("[Case]: Case I set");
-                errnum = USG_OK;
+                if(optarg)
+                {
+                    strncpy(imgName, optarg, sizeof(imgName));
+                    verbose("[Case]: Case I set");
+                }
                 break;
             case 'v':
                 if(atoi(optarg))
@@ -132,7 +134,7 @@ filter getArgs(int argc, char* argv[])
                 else
                 {
                     verbose("[Case]: wrong verbose something");
-                    print_usage(USG_VERBOSE);
+                    print_usage();
                 }
                 break;
             case 'b':
@@ -209,7 +211,7 @@ filter getArgs(int argc, char* argv[])
                 break;
             default: 
                 //Default exit
-                errnum = USG_W_ARG;
+                print_usage();
         }
     }
     // printf("[Arguments]: Inside getargs imgname = %s \n", imgName);
