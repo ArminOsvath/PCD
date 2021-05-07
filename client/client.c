@@ -17,7 +17,7 @@ void myRead(int socketDescriptor, char dir[SIZE])
 {
     char sentFile[SIZE];
     snprintf(sentFile, sizeof(dirpath)+sizeof(dirpath), "%s%s", dirpath, dir);
-
+    printf("Sentfile: %s\n", sentFile);
     int size;
     read(socketDescriptor, &size, sizeof(int));
     verbose("[+] Reading the size");
@@ -117,7 +117,7 @@ int print_usage()
 filter getArgs(int argc, char* argv[])
 {
     usageErr errnum;
-    filter myFilter;
+    filter myFilter = {0};
     int opt; //getlong integer
 
     //creere structura pentru getopt_long
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
     // variables
     // isVerbose = 0;
 
-    int socketDescriptor, connDescriptor;
+    int socketDescriptor;
     struct sockaddr_in servAddr;
     errCode retVal;
     filter myFilter;
@@ -295,8 +295,9 @@ int main(int argc, char* argv[])
     send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
     send(socketDescriptor, &myFilter, sizeof(myFilter), 0); //send filters
     myPath();
-    printf("printf filcounter %d \n", myFilter.filterCounter);
     myWrite(socketDescriptor);
     
     close(socketDescriptor);
+
+
 }
