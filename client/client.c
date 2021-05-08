@@ -13,43 +13,43 @@ char imgPath[SIZE];
 char fullPath[SIZE];
 char dirpath[SIZE];
 
-void myRead(int socketDescriptor, char dir[SIZE])
-{
-    char sentFile[SIZE];
-    snprintf(sentFile, sizeof(dirpath)+sizeof(dirpath), "%s%s", dirpath, dir);
-    printf("Sentfile: %s\n", sentFile);
-    int size;
-    read(socketDescriptor, &size, sizeof(int));
-    verbose("[+] Reading the size");
+// void myRead(int socketDescriptor, char dir[SIZE])
+// {
+//     char sentFile[SIZE];
+//     snprintf(sentFile, sizeof(dirpath)+sizeof(dirpath), "%s%s", dirpath, dir);
+//     printf("Sentfile: %s\n", sentFile);
+//     int size;
+//     read(socketDescriptor, &size, sizeof(int));
+//     verbose("[+] Reading the size");
 
-    // byte variables
-    char bytes[size];
-    FILE* img = fopen(sentFile, "w");
-    verbose("[+] Opened the image successfully");
+//     // byte variables
+//     char bytes[size];
+//     FILE* img = fopen(sentFile, "w");
+//     verbose("[+] Opened the image successfully");
     
-    // read the bytes
-    int rByte = read(socketDescriptor, bytes, size);
-    while (rByte > 0)
-    {
-        fwrite(bytes, 1, sizeof(bytes), img);
-        rByte = read(socketDescriptor, bytes, size);
+//     // read the bytes
+//     int rByte = read(socketDescriptor, bytes, size);
+//     while (rByte > 0)
+//     {
+//         fwrite(bytes, 1, sizeof(bytes), img);
+//         rByte = read(socketDescriptor, bytes, size);
         
-    } 
-    fclose(img);
+//     } 
+//     fclose(img);
 
-    verbose("[+++++] Wrote the image successfully");
-}
+//     verbose("[+++++] Wrote the image successfully");
+// }
 errCode myWrite(int socketDescriptor)
 {
     // file var
     FILE* img = fopen(fullPath, "r");
     
     // get size
-    int size = 1;
-    // int size;
-    // fseek(img, 0, SEEK_END); // img pointer to eof position
-    // size = ftell(img); // number of bytes from the beginning of the file
-    // fseek(img, 0, SEEK_SET); // img pointer to beginning
+    // int size = 1;
+    int size;
+    fseek(img, 0, SEEK_END); // img pointer to eof position
+    size = ftell(img); // number of bytes from the beginning of the file
+    fseek(img, 0, SEEK_SET); // img pointer to beginning
     verbose("[+] Got the size of the image");
     // printf("size: %ld \n", size);
 
@@ -67,13 +67,9 @@ errCode myWrite(int socketDescriptor)
 
     // send the bytes
     int nb = fread(buffer, 1, sizeof(buffer), img);
+    write(socketDescriptor, buffer, sizeof(buffer));
     // printf("nb: %d\n",nb);
-    while(!feof(img))
-    {
-        write(socketDescriptor, buffer, sizeof(buffer));
-        nb = fread(buffer, 1, sizeof(buffer), img);
-        // printf("nb: %d\n",nb);
-    }
+
     verbose("[+++++++] Writing the image success");
     return RET_NO_ERR;
 }

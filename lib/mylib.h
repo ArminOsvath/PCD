@@ -2,6 +2,7 @@
 #define MYLIB_h
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>

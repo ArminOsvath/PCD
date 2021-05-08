@@ -26,13 +26,13 @@ errCode myRead(int connDescriptor)
     
     // read the bytes
     int rByte = read(connDescriptor, bytes, size);
+    fwrite(bytes, 1, sizeof(bytes), img);
     // printf("rbyte: %d\n",rByte);
-    while (rByte > 0)
-    {
-        fwrite(bytes, 1, sizeof(bytes), img);
-        rByte = read(connDescriptor, bytes, size);
-        // printf("rbyte: %d\n",rByte);
-    } 
+    // while (rByte > 0)
+    // {
+    //     rByte = read(connDescriptor, bytes, size);
+    //     // printf("rbyte: %d\n",rByte);
+    // } 
     fclose(img);
 
     verbose("[++++++] Wrote the image successfully");
