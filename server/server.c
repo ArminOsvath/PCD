@@ -1,4 +1,4 @@
-#include "/home/dj/VSC/C_Cpp/Project/lib/mylib.h"
+#include "../lib/mylib.h"
 
 #define MAX 80
 #define PORT 9326
@@ -26,14 +26,16 @@ errCode myRead(int connDescriptor)
     
     // read the bytes
     int rByte = read(connDescriptor, bytes, size);
+    // printf("rbyte: %d\n",rByte);
     while (rByte > 0)
     {
         fwrite(bytes, 1, sizeof(bytes), img);
         rByte = read(connDescriptor, bytes, size);
+        // printf("rbyte: %d\n",rByte);
     } 
     fclose(img);
 
-    verbose("[+] Wrote the image successfully");
+    verbose("[++++++] Wrote the image successfully");
     return RET_NO_ERR;
 }
 
@@ -77,6 +79,9 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/gray.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
+            
         }
         else if(myFilter.isBinary)
         {
@@ -89,6 +94,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/binary.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
         else if(myFilter.isBlur)
         {
@@ -101,6 +108,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/blur.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
         else if(myFilter.isContour)
         {
@@ -113,6 +122,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/contourfill.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
         else if(myFilter.isEqHis)
         {
@@ -125,6 +136,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/equalizedhistogram.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
         else if(myFilter.isGblur)
         {
@@ -137,6 +150,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/gblur.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
         else if(myFilter.isHSV)
         {
@@ -149,6 +164,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/hsv.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
         else if(myFilter.isMedian)
         {
@@ -161,6 +178,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3", "./scripts/median.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
         else if(myFilter.isSobel)
         {
@@ -173,6 +192,8 @@ void forkIt(filter myFilter)
                 execlp("/usr/bin/python3", "/usr/bin/python3",  "./scripts/sobel.py", srvPath, fullPath, imgName, NULL);
                 printf("Execution error has happened \n");
             }
+            else
+                continue;
         }
     }
     while(wait(&status) > 0);

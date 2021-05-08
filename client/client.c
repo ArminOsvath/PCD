@@ -1,4 +1,4 @@
-#include "/home/dj/VSC/C_Cpp/Project/lib/mylib.h"
+#include "../lib/mylib.h"
 
 #define MAX 80
 #define PORT 9326
@@ -33,10 +33,11 @@ void myRead(int socketDescriptor, char dir[SIZE])
     {
         fwrite(bytes, 1, sizeof(bytes), img);
         rByte = read(socketDescriptor, bytes, size);
+        
     } 
     fclose(img);
 
-    verbose("[+] Wrote the image successfully");
+    verbose("[+++++] Wrote the image successfully");
 }
 errCode myWrite(int socketDescriptor)
 {
@@ -44,10 +45,11 @@ errCode myWrite(int socketDescriptor)
     FILE* img = fopen(fullPath, "r");
     
     // get size
-    int size;
-    fseek(img, 0, SEEK_END); // img pointer to eof position
-    size = ftell(img); // number of bytes from the beginning of the file
-    fseek(img, 0, SEEK_SET); // img pointer to beginning
+    int size = 1;
+    // int size;
+    // fseek(img, 0, SEEK_END); // img pointer to eof position
+    // size = ftell(img); // number of bytes from the beginning of the file
+    // fseek(img, 0, SEEK_SET); // img pointer to beginning
     verbose("[+] Got the size of the image");
     // printf("size: %ld \n", size);
 
@@ -59,18 +61,20 @@ errCode myWrite(int socketDescriptor)
 
     verbose("[+] Writing the image");
     // send the size
-    write (socketDescriptor, &size, sizeof(size));
+    write (socketDescriptor, &size, sizeof(int));
 
     char buffer[size];
 
     // send the bytes
     int nb = fread(buffer, 1, sizeof(buffer), img);
+    // printf("nb: %d\n",nb);
     while(!feof(img))
     {
         write(socketDescriptor, buffer, sizeof(buffer));
         nb = fread(buffer, 1, sizeof(buffer), img);
+        // printf("nb: %d\n",nb);
     }
-    verbose("[+] Writing the image success");
+    verbose("[+++++++] Writing the image success");
     return RET_NO_ERR;
 }
 
@@ -297,6 +301,7 @@ int main(int argc, char* argv[])
     myPath();
     myWrite(socketDescriptor);
     
+    sleep(5);
     close(socketDescriptor);
 
 
