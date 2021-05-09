@@ -205,7 +205,9 @@ int myDirs(int connDescriptor)
     struct dirent* in_file;
     FILE    *entry_file;
     char    buffer[SIZE];
+    char    filepath[SIZE];
     char    filename[SIZE];
+
     if (NULL == (FD = opendir(dirpath)))
     {
         printf("Error: failed to open input directory %s\n", strerror(errno));
@@ -218,41 +220,41 @@ int myDirs(int connDescriptor)
             continue;
         if (!strcmp (in_file->d_name, ".."))    
             continue;
+        strncpy(filename, in_file->d_name, sizeof(filename));
+        snprintf(filepath, sizeof(filepath)+sizeof(in_file->d_name), "%s%s", dirpath,in_file->d_name);
+        printf("opening file %s\n",filepath);
+        send(connDescriptor, filename, sizeof(filename), 0); //send img name
+
+
+        FILE* img = fopen(filepath, "r");
         
-        snprintf(filename, sizeof(filename)+sizeof(in_file->d_name), "%s%s", dirpath,in_file->d_name);
-        printf("opening file %s\n",filename);
-        send(connDescriptor, in_file->d_name, sizeof(in_file->d_name), 0); //send img name
-        verbose("Sent file name \n");
-        entry_file = fopen(filename, "r");
-        if (entry_file == NULL)
+        // get size
+        // int size = 1;
+        int size;
+        fseek(img, 0, SEEK_END); // img pointer to eof position
+        size = ftell(img); // number of bytes from the beginning of the file
+        fseek(img, 0, SEEK_SET); // img pointer to beginning
+        verbose("[+] Got the size of the image");
+        // printf("size: %ld \n", size);
+
+        if (img == NULL) 
         {
-            printf("Error : Failed to open entry file - %s\n", strerror(errno));
-
-            return 1;
-        }
-        while (fgets(buffer, BUFSIZ, entry_file) != NULL)
-        {
-            int size;
-            fseek(entry_file, 0, SEEK_END); // img pointer to eof position
-            size = ftell(entry_file); // number of bytes from the beginning of the file
-            fseek(entry_file, 0, SEEK_SET); // img pointer to beginning
-            printf("[+] Got the size of the image %s\n",filename);
-            write (connDescriptor, &size, sizeof(size));
-
-            char buffer[size];
-
-            // send the bytes
-            int nb = fread(buffer, 1, sizeof(buffer), entry_file);
-            while(!feof(entry_file))
-            {
-                write(connDescriptor, buffer, sizeof(buffer));
-                nb = fread(buffer, 1, sizeof(buffer), entry_file);
-            }
-            verbose("[+] Writing the image success");
-
+            verbose("[-] Error file might be empty or wrong file.");
+            exit(1);
         }
 
-        fclose(entry_file);
+        verbose("[+] Writing the image");
+        // send the size
+        write (connDescriptor, &size, sizeof(size));
+
+        char buffer[size];
+
+        // send the bytes
+        int nb = fread(buffer, 1, sizeof(buffer), img);
+        write(connDescriptor, buffer, sizeof(buffer));
+        printf("nb: %d\n",nb);
+        
+        verbose("[+++++++] Writing the image success");
     }
 }
 int main(int argc, char* argv[])
@@ -338,7 +340,7 @@ int main(int argc, char* argv[])
 
     printf("I should be last\n");
 
-    // myDirs(connDescriptor);
+    myDirs(connDescriptor);
 
     close(socketDescriptor);
     

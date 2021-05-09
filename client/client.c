@@ -69,7 +69,7 @@ errCode myWrite(int socketDescriptor)
     int nb = fread(buffer, 1, sizeof(buffer), img);
     write(socketDescriptor, buffer, sizeof(buffer));
     // printf("nb: %d\n",nb);
-
+    fclose(img);
     verbose("[+++++++] Writing the image success");
     return RET_NO_ERR;
 }
@@ -296,8 +296,36 @@ int main(int argc, char* argv[])
     send(socketDescriptor, &myFilter, sizeof(myFilter), 0); //send filters
     myPath();
     myWrite(socketDescriptor);
-    
-    sleep(5);
+
+    char recvName[SIZE];
+    for(int i = 0; i<myFilter.filterCounter; i++)
+    {
+        recv(socketDescriptor, &recvName, sizeof(recvName), 0);
+        printf("[+] recvName: %s\n", recvName);
+        int size;
+        read(socketDescriptor, &size, sizeof(int));
+        verbose("[+] Reading the size");
+
+        bzero(fullPath, sizeof(fullPath));
+        snprintf(fullPath, sizeof(fullPath)+sizeof(recvName), "%s/%s", dirpath, recvName);
+
+        // byte variables
+        char bytes[size];
+        FILE* img = fopen(fullPath, "w");
+        verbose("[+] Opened the image successfully");
+        
+        // read the bytes
+        int rByte = read(socketDescriptor, bytes, size);
+        fwrite(bytes, 1, sizeof(bytes), img);
+        printf("rbyte: %d\n",rByte);
+        // while (rByte > 0)
+        // {
+        //     rByte = read(connDescriptor, bytes, size);
+        //     // printf("rbyte: %d\n",rByte);
+        // } 
+        fclose(img);
+    }
+    // sleep(5);
     close(socketDescriptor);
 
 
