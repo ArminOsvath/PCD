@@ -15,25 +15,32 @@ char dirpath[SIZE];
 errCode myRead(int connDescriptor)
 {
     // get size
-    int size;
-    read(connDescriptor, &size, sizeof(int));
+    // int size;
+    struct stat stbuf;
+    ssize_t bts;
+    off_t* offt = 0;
+    read(connDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
     verbose("[+] Reading the size");
-
+    printf("got the size %ld\n", stbuf.st_size);
     // byte variables
-    char bytes[size];
-    FILE* img = fopen(fullPath, "w");
+    // char bytes[size];
+    // FILE* img = fopen(fullPath, "w");
+    int imgfd = open(fullPath, O_CREAT|O_WRONLY, 0600);
+    printf("imgfd %d \n", imgfd);
     verbose("[+] Opened the image successfully");
-    
+    bts = sendfile(imgfd, connDescriptor, offt, stbuf.st_size);
+    printf("bts = %ld \n",bts);
+    printf("errno: %s\n", strerror(errno));
     // read the bytes
-    int rByte = read(connDescriptor, bytes, size);
-    fwrite(bytes, 1, sizeof(bytes), img);
+    // int rByte = read(connDescriptor, bytes, size);
+    // fwrite(bytes, 1, sizeof(bytes), img);
     // printf("rbyte: %d\n",rByte);
     // while (rByte > 0)
     // {
     //     rByte = read(connDescriptor, bytes, size);
     //     // printf("rbyte: %d\n",rByte);
     // } 
-    fclose(img);
+    close(imgfd);
 
     verbose("[++++++] Wrote the image successfully");
     return RET_NO_ERR;
@@ -225,34 +232,35 @@ int myDirs(int connDescriptor)
         printf("opening file %s\n",filepath);
         send(connDescriptor, filename, sizeof(filename), 0); //send img name
 
+        struct stat stbuf;
+        off_t* offt = 0;
+        ssize_t bts;
 
-        FILE* img = fopen(filepath, "r");
-        
+        // FILE* img = fopen(filepath, "r");
+        int imgfd = open(filepath, O_RDONLY);
+        printf("imgfd %d \n", imgfd);
+        fstat(imgfd, &stbuf);
         // get size
         // int size = 1;
-        int size;
-        fseek(img, 0, SEEK_END); // img pointer to eof position
-        size = ftell(img); // number of bytes from the beginning of the file
-        fseek(img, 0, SEEK_SET); // img pointer to beginning
+        // int size;
+        // fseek(img, 0, SEEK_END); // img pointer to eof position
+        // size = ftell(img); // number of bytes from the beginning of the file
+        // fseek(img, 0, SEEK_SET); // img pointer to beginning
         verbose("[+] Got the size of the image");
         // printf("size: %ld \n", size);
 
-        if (img == NULL) 
-        {
-            verbose("[-] Error file might be empty or wrong file.");
-            exit(1);
-        }
 
         verbose("[+] Writing the image");
         // send the size
-        write (connDescriptor, &size, sizeof(size));
-
-        char buffer[size];
+        write (connDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
+        printf("stbuf size %ld \n", stbuf.st_size);
 
         // send the bytes
-        int nb = fread(buffer, 1, sizeof(buffer), img);
-        write(connDescriptor, buffer, sizeof(buffer));
-        printf("nb: %d\n",nb);
+        bts = sendfile(connDescriptor, imgfd, offt, stbuf.st_size);
+        printf("bts = %ld \n",bts);
+
+        printf("errno: %s\n", strerror(errno));
+        close(imgfd);
         
         verbose("[+++++++] Writing the image success");
     }

@@ -42,34 +42,36 @@ char dirpath[SIZE];
 errCode myWrite(int socketDescriptor)
 {
     // file var
-    FILE* img = fopen(fullPath, "r");
-    
+    struct stat stbuf;
+    off_t* offt = 0;
+    // FILE* img = fopen(fullPath, "r");
+    int imgfd = open(fullPath, O_RDONLY);
+    printf("imgfd %d \n", imgfd);
+    fstat(imgfd, &stbuf);
     // get size
     // int size = 1;
-    int size;
-    fseek(img, 0, SEEK_END); // img pointer to eof position
-    size = ftell(img); // number of bytes from the beginning of the file
-    fseek(img, 0, SEEK_SET); // img pointer to beginning
+    // int size;
+    // fseek(img, 0, SEEK_END); // img pointer to eof position
+    // size = ftell(img); // number of bytes from the beginning of the file
+    // fseek(img, 0, SEEK_SET); // img pointer to beginning
     verbose("[+] Got the size of the image");
     // printf("size: %ld \n", size);
-
-    if (img == NULL) 
-    {
-        verbose("[-] Error file might be empty or wrong file.");
-        exit(1);
-    }
-
+    ssize_t bts;
     verbose("[+] Writing the image");
     // send the size
-    write (socketDescriptor, &size, sizeof(int));
-
-    char buffer[size];
-
+    write (socketDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
+    printf("stbuf size %ld \n", stbuf.st_size);
+    // char buffer[size];
     // send the bytes
-    int nb = fread(buffer, 1, sizeof(buffer), img);
-    write(socketDescriptor, buffer, sizeof(buffer));
+    // int nb = fread(buffer, 1, sizeof(buffer), img);
+    // write(socketDescriptor, buffer, sizeof(buffer));
     // printf("nb: %d\n",nb);
-    fclose(img);
+    // fclose(img);
+    bts = sendfile(socketDescriptor, imgfd, offt, stbuf.st_size);
+    printf("bts = %ld \n",bts);
+
+    printf("errno: %s\n", strerror(errno));
+    close(imgfd);
     verbose("[+++++++] Writing the image success");
     return RET_NO_ERR;
 }
@@ -300,30 +302,33 @@ int main(int argc, char* argv[])
     char recvName[SIZE];
     for(int i = 0; i<myFilter.filterCounter; i++)
     {
+        struct stat stbuf;
+        ssize_t bts;
+        off_t* offt = 0;
+
         recv(socketDescriptor, &recvName, sizeof(recvName), 0);
         printf("[+] recvName: %s\n", recvName);
-        int size;
-        read(socketDescriptor, &size, sizeof(int));
+
         verbose("[+] Reading the size");
+        read(socketDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
+        printf("got the size %ld\n", stbuf.st_size);
 
         bzero(fullPath, sizeof(fullPath));
         snprintf(fullPath, sizeof(fullPath)+sizeof(recvName), "%s/%s", dirpath, recvName);
 
         // byte variables
-        char bytes[size];
-        FILE* img = fopen(fullPath, "w");
+        int imgfd = open(fullPath, O_CREAT|O_WRONLY, 0600);
+        printf("imgfd %d \n", imgfd);
         verbose("[+] Opened the image successfully");
-        
-        // read the bytes
-        int rByte = read(socketDescriptor, bytes, size);
-        fwrite(bytes, 1, sizeof(bytes), img);
-        printf("rbyte: %d\n",rByte);
+        bts = sendfile(imgfd, socketDescriptor, offt, stbuf.st_size);
+        printf("bts = %ld \n",bts);
+        printf("errno: %s\n", strerror(errno));
         // while (rByte > 0)
         // {
         //     rByte = read(connDescriptor, bytes, size);
         //     // printf("rbyte: %d\n",rByte);
         // } 
-        fclose(img);
+        close(imgfd);
     }
     // sleep(5);
     close(socketDescriptor);

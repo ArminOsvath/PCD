@@ -50,5 +50,5 @@ typedef enum errCode
 }errCode;
 
 errCode verbose(char* myStr);
-
+ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count);
 #endif //MYLIB_H
