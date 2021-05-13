@@ -13,66 +13,40 @@ char imgPath[SIZE];
 char fullPath[SIZE];
 char dirpath[SIZE];
 
-// void myRead(int socketDescriptor, char dir[SIZE])
-// {
-//     char sentFile[SIZE];
-//     snprintf(sentFile, sizeof(dirpath)+sizeof(dirpath), "%s%s", dirpath, dir);
-//     printf("Sentfile: %s\n", sentFile);
-//     int size;
-//     read(socketDescriptor, &size, sizeof(int));
-//     verbose("[+] Reading the size");
 
-//     // byte variables
-//     char bytes[size];
-//     FILE* img = fopen(sentFile, "w");
-//     verbose("[+] Opened the image successfully");
-    
-//     // read the bytes
-//     int rByte = read(socketDescriptor, bytes, size);
-//     while (rByte > 0)
-//     {
-//         fwrite(bytes, 1, sizeof(bytes), img);
-//         rByte = read(socketDescriptor, bytes, size);
-        
-//     } 
-//     fclose(img);
-
-//     verbose("[+++++] Wrote the image successfully");
-// }
 errCode myWrite(int socketDescriptor)
 {
     // file var
     struct stat stbuf;
     off_t* offt = 0;
-    // FILE* img = fopen(fullPath, "r");
-    int imgfd = open(fullPath, O_RDONLY);
-    printf("imgfd %d \n", imgfd);
-    fstat(imgfd, &stbuf);
-    // get size
-    // int size = 1;
-    // int size;
-    // fseek(img, 0, SEEK_END); // img pointer to eof position
-    // size = ftell(img); // number of bytes from the beginning of the file
-    // fseek(img, 0, SEEK_SET); // img pointer to beginning
-    verbose("[+] Got the size of the image");
-    // printf("size: %ld \n", size);
     ssize_t bts;
+    int imgfd;
+    
+    imgfd = open(fullPath, O_RDONLY);
+
+    if(isVerbose)
+        printf("imgfd %d \n", imgfd);
+
+    // get size
+    fstat(imgfd, &stbuf);
+    verbose("[+] Got the size of the image");
+
     verbose("[+] Writing the image");
     // send the size
     write (socketDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
-    printf("stbuf size %ld \n", stbuf.st_size);
-    // char buffer[size];
-    // send the bytes
-    // int nb = fread(buffer, 1, sizeof(buffer), img);
-    // write(socketDescriptor, buffer, sizeof(buffer));
-    // printf("nb: %d\n",nb);
-    // fclose(img);
-    bts = sendfile(socketDescriptor, imgfd, offt, stbuf.st_size);
-    printf("bts = %ld \n",bts);
+    if(isVerbose)
+        printf("stbuf size %ld \n", stbuf.st_size);
 
-    printf("errno: %s\n", strerror(errno));
+    bts = sendfile(socketDescriptor, imgfd, offt, stbuf.st_size);
+
+    if(isVerbose)
+    {
+        printf("bts = %ld \n",bts);
+        printf("errno: %s\n", strerror(errno));
+    }
+
     close(imgfd);
-    verbose("[+++++++] Writing the image success");
+    verbose("[+] Writing the image success");
     return RET_NO_ERR;
 }
 
@@ -91,13 +65,20 @@ void myPath()
     {
         verbose("[-] Failed to set the PWD");
     }
-    printf("[Path]: cliPath: %s \n", cliPath);
+
+    if(isVerbose)
+        printf("[Path]: cliPath: %s \n", cliPath);
+
     snprintf(imgPath, sizeof(imgPath)+sizeof(cliPath), "%s/image", cliPath);
     snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
     snprintf(dirpath, sizeof(dirpath)+sizeof(cliPath), "%s/%s", cliPath, "output/");
-    printf("[Path]: imgPath: %s \n", imgPath);
-    printf("[Path]: dirpath: %s \n", dirpath);
-    printf("[Path]: fullPath: %s \n", fullPath);
+
+    if(isVerbose)
+    {
+        printf("[Path]: imgPath: %s \n", imgPath);
+        printf("[Path]: dirpath: %s \n", dirpath);
+        printf("[Path]: fullPath: %s \n", fullPath);
+    }
 
 }
 int print_usage()
@@ -158,8 +139,13 @@ filter getArgs(int argc, char* argv[])
             case 'v':
                 if(atoi(optarg))
                 {
-                    isVerbose = 1;
+                    myFilter.isVerbose = 1;
                     verbose("[Case]: Case verbose set");
+                }
+                else if (0 == atoi(optarg))
+                {
+                    myFilter.isVerbose = 0;
+                    verbose("[Case]: Case verbose set 0");
                 }
                 else
                 {
@@ -244,24 +230,25 @@ filter getArgs(int argc, char* argv[])
                 print_usage();
         }
     }
-    // printf("[Arguments]: Inside getargs imgname = %s \n", imgName);
-    // printf("[Arguments]: %d filters required\n", myFilter.filterCounter);
+    if(myFilter.isVerbose)
+    {
+        printf("[Arguments]: Inside getargs imgname = %s \n", imgName);
+        printf("[Arguments]: %d filters required\n", myFilter.filterCounter);
+    }
 
     return myFilter;
 }
 
 int main(int argc, char* argv[])
 {
-    // variables
-    // isVerbose = 0;
-
     int socketDescriptor;
     struct sockaddr_in servAddr;
     errCode retVal;
     filter myFilter;
-    myFilter.filterCounter = 0;
 
     myFilter=getArgs(argc, argv);
+    isVerbose=myFilter.isVerbose;
+    printf("[Args]: #of args %d\n",myFilter.filterCounter);
     // seting up socket
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == socketDescriptor)
@@ -291,7 +278,7 @@ int main(int argc, char* argv[])
     {
         verbose("[+] Connection success.");
     }
-
+    if(isVerbose)
         printf("printf filcounter %d \n", myFilter.filterCounter);
 
     send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
@@ -307,30 +294,30 @@ int main(int argc, char* argv[])
         off_t* offt = 0;
 
         recv(socketDescriptor, &recvName, sizeof(recvName), 0);
-        printf("[+] recvName: %s\n", recvName);
+        if(isVerbose)
+            printf("[+] recvName: %s\n", recvName);
 
         verbose("[+] Reading the size");
         read(socketDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
-        printf("got the size %ld\n", stbuf.st_size);
+        if(isVerbose)
+            printf("got the size %ld\n", stbuf.st_size);
 
         bzero(fullPath, sizeof(fullPath));
         snprintf(fullPath, sizeof(fullPath)+sizeof(recvName), "%s/%s", dirpath, recvName);
 
         // byte variables
         int imgfd = open(fullPath, O_CREAT|O_WRONLY, 0600);
-        printf("imgfd %d \n", imgfd);
+        if(isVerbose)
+            printf("imgfd %d \n", imgfd);
         verbose("[+] Opened the image successfully");
         bts = sendfile(imgfd, socketDescriptor, offt, stbuf.st_size);
-        printf("bts = %ld \n",bts);
-        printf("errno: %s\n", strerror(errno));
-        // while (rByte > 0)
-        // {
-        //     rByte = read(connDescriptor, bytes, size);
-        //     // printf("rbyte: %d\n",rByte);
-        // } 
+        if(isVerbose)
+        {
+            printf("bts = %ld \n",bts);
+            printf("errno: %s\n", strerror(errno));
+        }
         close(imgfd);
     }
-    // sleep(5);
     close(socketDescriptor);
 
 

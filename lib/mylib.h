@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 typedef struct filter
 {
+    bool isVerbose;
     bool isGray;
     bool isBinary;
     bool isBlur;

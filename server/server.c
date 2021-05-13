@@ -14,35 +14,34 @@ char dirpath[SIZE];
 
 errCode myRead(int connDescriptor)
 {
-    // get size
-    // int size;
+    int imgfd;
     struct stat stbuf;
     ssize_t bts;
     off_t* offt = 0;
+
     read(connDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
+    if(isVerbose)
+        printf("got the size %ld\n", stbuf.st_size);
+
     verbose("[+] Reading the size");
-    printf("got the size %ld\n", stbuf.st_size);
-    // byte variables
-    // char bytes[size];
-    // FILE* img = fopen(fullPath, "w");
-    int imgfd = open(fullPath, O_CREAT|O_WRONLY, 0600);
-    printf("imgfd %d \n", imgfd);
+
+    imgfd = open(fullPath, O_CREAT|O_WRONLY, 0600);
+    if(isVerbose)
+        printf("imgfd %d \n", imgfd);
+
     verbose("[+] Opened the image successfully");
+
     bts = sendfile(imgfd, connDescriptor, offt, stbuf.st_size);
-    printf("bts = %ld \n",bts);
-    printf("errno: %s\n", strerror(errno));
-    // read the bytes
-    // int rByte = read(connDescriptor, bytes, size);
-    // fwrite(bytes, 1, sizeof(bytes), img);
-    // printf("rbyte: %d\n",rByte);
-    // while (rByte > 0)
-    // {
-    //     rByte = read(connDescriptor, bytes, size);
-    //     // printf("rbyte: %d\n",rByte);
-    // } 
+
+    if(isVerbose)
+    {
+        printf("bts = %ld \n",bts);
+        printf("errno: %s\n", strerror(errno));
+    }
+
     close(imgfd);
 
-    verbose("[++++++] Wrote the image successfully");
+    verbose("[+] Wrote the image successfully");
     return RET_NO_ERR;
 }
 
@@ -61,13 +60,20 @@ void myPath()
     {
         verbose("[-] Failed to set the PWD");
     }
-    printf("[Path]: srvPath: %s \n", srvPath);
+
+    if(isVerbose)
+        printf("[Path]: srvPath: %s \n", srvPath);
+
     snprintf(imgPath, sizeof(imgPath)+sizeof(srvPath), "%s/image", srvPath);
     snprintf(fullPath, sizeof(fullPath)+sizeof(imgPath), "%s/%s", imgPath, imgName);
     snprintf(dirpath, sizeof(dirpath)+sizeof(srvPath), "%s/%s", srvPath, "output/");
-    printf("[Path]: imgPath: %s \n", imgPath);
-    printf("[Path]: dirpath: %s \n", dirpath);
-    printf("[Path]: fullPath: %s \n", fullPath);
+
+    if(isVerbose)
+    {
+        printf("[Path]: imgPath: %s \n", imgPath);
+        printf("[Path]: dirpath: %s \n", dirpath);
+        printf("[Path]: fullPath: %s \n", fullPath);
+    }
 
 }
 void forkIt(filter myFilter)
@@ -229,40 +235,42 @@ int myDirs(int connDescriptor)
             continue;
         strncpy(filename, in_file->d_name, sizeof(filename));
         snprintf(filepath, sizeof(filepath)+sizeof(in_file->d_name), "%s%s", dirpath,in_file->d_name);
-        printf("opening file %s\n",filepath);
+        if(isVerbose)
+            printf("opening file %s\n",filepath);
+
         send(connDescriptor, filename, sizeof(filename), 0); //send img name
 
+        int imgfd;
         struct stat stbuf;
         off_t* offt = 0;
         ssize_t bts;
 
-        // FILE* img = fopen(filepath, "r");
-        int imgfd = open(filepath, O_RDONLY);
-        printf("imgfd %d \n", imgfd);
-        fstat(imgfd, &stbuf);
+        imgfd = open(filepath, O_RDONLY);
+        if(isVerbose)
+            printf("imgfd %d \n", imgfd);
+
         // get size
-        // int size = 1;
-        // int size;
-        // fseek(img, 0, SEEK_END); // img pointer to eof position
-        // size = ftell(img); // number of bytes from the beginning of the file
-        // fseek(img, 0, SEEK_SET); // img pointer to beginning
+        fstat(imgfd, &stbuf);
         verbose("[+] Got the size of the image");
-        // printf("size: %ld \n", size);
 
 
         verbose("[+] Writing the image");
         // send the size
         write (connDescriptor, &stbuf.st_size, sizeof(stbuf.st_size));
-        printf("stbuf size %ld \n", stbuf.st_size);
+        if(isVerbose)
+            printf("stbuf size %ld \n", stbuf.st_size);
 
         // send the bytes
         bts = sendfile(connDescriptor, imgfd, offt, stbuf.st_size);
-        printf("bts = %ld \n",bts);
 
-        printf("errno: %s\n", strerror(errno));
+        if(isVerbose)
+        {
+            printf("bts = %ld \n",bts);
+            printf("errno: %s\n", strerror(errno));
+        }
         close(imgfd);
         
-        verbose("[+++++++] Writing the image success");
+        verbose("[+] Writing the image success");
     }
 }
 int main(int argc, char* argv[])
@@ -270,6 +278,8 @@ int main(int argc, char* argv[])
     int socketDescriptor, connDescriptor, len;
     struct sockaddr_in servAddr, client;
     filter myFilter;
+    int status;
+    pid_t pid;
 
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == socketDescriptor)
@@ -322,31 +332,34 @@ int main(int argc, char* argv[])
     }
 
     recv(connDescriptor, &imgName, sizeof(imgName), 0);
-    recv(connDescriptor, &myFilter, sizeof(myFilter), 0);
-    printf("[Connection]: Filter counter  %d \n", myFilter.filterCounter);
+    recv(connDescriptor, &myFilter, sizeof(myFilter), 0); //recieve myfilter
+    isVerbose = myFilter.isVerbose;
+    if(isVerbose)
+        printf("[Connection]: Filter counter  %d \n", myFilter.filterCounter);
     myPath();
     myRead(connDescriptor);
 
-    pid_t pid = fork();
-    int status;
+    pid = fork();
     if(0 > pid)
     {
-        verbose("error in making pid1");
+        printf("[-] Error in making pid1");
     }
     else if(0 == pid)
     {
-        printf("preparing for forkit inside main\n");
+        
+        verbose("preparing for forkit inside main");
         forkIt(myFilter);
     }
     else
     {
         while((pid = wait(&status) > 0))
         {
-            fprintf(stderr,"[C]: Parent : %ld, Me = %ld you are outside\n",(long)getppid(),(long)getpid());
+            if(isVerbose)
+                printf("[C]: Parent : %ld, Me = %ld you are outside\n",(long)getppid(),(long)getpid());
         };
     }
-
-    printf("I should be last\n");
+    if(isVerbose)
+        printf("I should be last\n");
 
     myDirs(connDescriptor);
 
