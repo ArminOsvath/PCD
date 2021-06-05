@@ -1,9 +1,9 @@
 all: pcd
 
 runc:
-	client/client -I Img2.jpg
+	client/client -I Img2.jpg -v 1 -b
 runa:
-	client/client -I leaf.jpg -v 1 -b -B -c -e -G -g -h -m -s
+	client/client -I Img2.jpg -v 1 -b -B -c -e -G -g -h -m -s
 runs:
 	server/server
 
