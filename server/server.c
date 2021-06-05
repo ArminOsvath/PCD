@@ -266,7 +266,7 @@ int myDirs(int connDescriptor)
         if(isVerbose)
         {
             printf("bts = %ld \n",bts);
-            printf("errno: %s\n", strerror(errno));
+            // printf("errno: %s\n", strerror(errno));
         }
         close(imgfd);
         
@@ -358,10 +358,17 @@ int main(int argc, char* argv[])
                 printf("[C]: Parent : %ld, Me = %ld you are outside\n",(long)getppid(),(long)getpid());
         };
     }
+
     if(isVerbose)
-        printf("I should be last\n");
+        printf("errno: %s\n", strerror(errno));
+        
+    if(isVerbose)
+        printf("I should be before myDirs\n");
 
     myDirs(connDescriptor);
+
+    if(isVerbose)
+        printf("I should be last\n");
 
     close(socketDescriptor);
     
