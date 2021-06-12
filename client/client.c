@@ -245,6 +245,7 @@ int main(int argc, char* argv[])
     struct sockaddr_in servAddr;
     errCode retVal;
     filter myFilter;
+    char buffer[1025];  //data buffer of 1K 
 
     myFilter=getArgs(argc, argv);
     isVerbose=myFilter.isVerbose;
@@ -265,7 +266,7 @@ int main(int argc, char* argv[])
 
     // seting up ip and port
     servAddr.sin_family = AF_INET;
-    servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    servAddr.sin_addr.s_addr = inet_addr("192.168.159.128");
     servAddr.sin_port = htons(PORT);
 
     // connect to the server
@@ -281,6 +282,8 @@ int main(int argc, char* argv[])
     if(isVerbose)
         printf("printf filcounter %d \n", myFilter.filterCounter);
 
+    // recv(socketDescriptor, &buffer, sizeof(buffer), 0);
+    // printf("buffeR: %s \n", buffer);
     send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
     send(socketDescriptor, &myFilter, sizeof(myFilter), 0); //send filters
     myPath();
