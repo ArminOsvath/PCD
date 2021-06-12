@@ -1,0 +1,8 @@
+a.out
+a.txt
+client
+lib
+makefile
+README.md
+scripts
+server

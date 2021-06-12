@@ -343,13 +343,15 @@ int myDirs(int connDescriptor)
         }
     }
 }
-int main(int argc, char* argv[])
+void *server_main(void *str)
 {
     int opt = TRUE;
     int client_socket[50], max_clients = 50, activity, i, val, sd;
     int max_sd;
     char *message = "Connected to the client version 1:* \r\n";
     char buffer[1025];  //data buffer of 1K 
+
+    int pwd;
 
     int socketDescriptor, connDescriptor, len;
     struct sockaddr_in servAddr, client;
@@ -456,48 +458,65 @@ int main(int argc, char* argv[])
                 {
                     client_socket[i] = connDescriptor;
                     printf("Adding to list of sockets as %d\n" , i);  
-                    recv(client_socket[i], &imgName, sizeof(imgName), 0);
-                    printf("This is the name i received %s\n" , imgName);  
-                    recv(client_socket[i], &myFilter, sizeof(myFilter), 0); //recieve myfilter
-                    isVerbose = myFilter.isVerbose;
-                    if(isVerbose)
-                        printf("[Connection]: Filter counter  %d \n", myFilter.filterCounter);
-                    myPath();
-                    myRead(client_socket[i]);
+                    recv(client_socket[i], &pwd, sizeof(pwd), 0);
+                    if (pwd == 0)
+                    {
+                        printf("Client connected \n");
+                        recv(client_socket[i], &imgName, sizeof(imgName), 0);
+                        printf("This is the name i received %s\n" , imgName);  
+                        recv(client_socket[i], &myFilter, sizeof(myFilter), 0); //recieve myfilter
+                        isVerbose = myFilter.isVerbose;
+                        if(isVerbose)
+                            printf("[Connection]: Filter counter  %d \n", myFilter.filterCounter);
+                        myPath();
+                        myRead(client_socket[i]);
 
-                    pid = fork();
-                    if(0 > pid)
-                    {
-                        printf("[-] Error in making pid1");
-                    }
-                    else if(0 == pid)
-                    {
-                        
-                        verbose("preparing for forkit inside main");
-                        forkIt(myFilter);
-                    }
-                    else
-                    {
-                        while((pid = wait(&status) > 0))
+                        pid = fork();
+                        if(0 > pid)
                         {
-                            if(isVerbose)
-                                printf("[C]: Parent : %ld, Me = %ld you are outside\n",(long)getppid(),(long)getpid());
-                        };
+                            printf("[-] Error in making pid1");
+                        }
+                        else if(0 == pid)
+                        {
+                            
+                            verbose("preparing for forkit inside main");
+                            forkIt(myFilter);
+                        }
+                        else
+                        {
+                            while((pid = wait(&status) > 0))
+                            {
+                                if(isVerbose)
+                                    printf("[C]: Parent : %ld, Me = %ld you are outside\n",(long)getppid(),(long)getpid());
+                            };
+                        }
+
+                        if(isVerbose)
+                            printf("errno: %s\n", strerror(errno));
+                            
+                        if(isVerbose)
+                            printf("I should be before myDirs\n");
+
+                        myDirs(client_socket[i]);
+
+                        if(isVerbose)
+                            printf("I should be last\n");
+                            // system("rm -rf /home/dj/VSC/C_Cpp/PCD/PCD/server/output/*");
+                            // system("rm -rf /home/dj/VSC/C_Cpp/PCD/PCD/server/image/*");
                     }
+                    else if(pwd == 1)
+                    {
+                        client_socket[i] = connDescriptor;
+                        printf("Adding to list of sockets as %d\n" , i);
 
-                    if(isVerbose)
-                        printf("errno: %s\n", strerror(errno));
-                        
-                    if(isVerbose)
-                        printf("I should be before myDirs\n");
-
-                    myDirs(client_socket[i]);
-
-                    if(isVerbose)
-                        printf("I should be last\n");
-                        // system("rm -rf /home/dj/VSC/C_Cpp/PCD/PCD/server/output/*");
-                        // system("rm -rf /home/dj/VSC/C_Cpp/PCD/PCD/server/image/*");
-
+                        printf("Admin connected \n");
+                        char buff[MAX];
+                        read(client_socket[i], buff, sizeof(buff));
+                        if (strncmp("exit", buff, 4) == 0) {
+                            printf("Server Exit...\n");
+                            pthread_exit(NULL);
+                        }
+                    }
                         break; 
                 }
             }

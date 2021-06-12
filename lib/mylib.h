@@ -15,6 +15,10 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <arpa/inet.h>
+#include <sys/time.h>
+#include <netinet/in.h> 
+#include <sys/un.h>
+#include <pthread.h>
 typedef struct filter
 {
     bool isVerbose;

@@ -246,6 +246,7 @@ int main(int argc, char* argv[])
     errCode retVal;
     filter myFilter;
     char buffer[1025];  //data buffer of 1K 
+    int pwd = 0;
 
     myFilter=getArgs(argc, argv);
     isVerbose=myFilter.isVerbose;
@@ -284,6 +285,7 @@ int main(int argc, char* argv[])
 
     // recv(socketDescriptor, &buffer, sizeof(buffer), 0);
     // printf("buffeR: %s \n", buffer);
+    send(socketDescriptor, &pwd, sizeof(pwd), 0);
     send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
     send(socketDescriptor, &myFilter, sizeof(myFilter), 0); //send filters
     myPath();

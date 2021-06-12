@@ -10,10 +10,14 @@ runa3:
 	client/client -I smoke.jpg -v 1 -b -B -c -e -G -g -h -m -s
 runa4:
 	client/client -I butterfly.jpg -v 1 -b -B -c -e -G -g -h -m -s
-runs:
-	server/server
+runall: runa1 runa2 runa3 runa4 
 
-pcd: client.o server.o mylib.o
+runadmin:
+	client/admin
+runs:
+	server/threader
+
+pcd: client.o threader.o mylib.o admin.o 
 
 gdb: 
 	cc -g server/server.c lib/mylib 
@@ -34,6 +38,11 @@ client.o: client/client.c
 server.o: server/server.c
 	gcc server/server.c lib/mylib.c -o server/server
 
+admin.o: client/admin.c
+	gcc client/admin.c lib/mylib.c -o client/admin
+
+threader.o: server/threader.c
+	gcc server/server.c server/unix.c server/threader.c lib/mylib.c -l pthread -o server/threader 
 git:
 	git push -u origin main
 
