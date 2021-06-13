@@ -12,7 +12,7 @@ runa4:
 	client/client -I butterfly.jpg -v 1 -b -B -c -e -G -g -h -m -s
 runall: runa1 runa2 runa3 runa4 
 java:
-	mvn package exec:java -f jclient/pom.xml
+	mvn package exec:java
 ad:
 	client/admin
 runs:
@@ -47,7 +47,8 @@ unix.o: server/unix.c
 
 threader.o: server/threader.c
 	gcc server/server.c server/unix.c server/threader.c lib/mylib.c -l pthread -o server/threader 
-git:
+
+git: prepare
 	git push -u origin main
 prepare: 
 	tee  ./client/output/unnamed.jpg ./server/image/unnamed.jpg ./server/output/unnamed.jpg < ./client/image/unnamed.jpg 
