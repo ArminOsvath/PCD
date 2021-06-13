@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
     struct sockaddr_in servAddr;
     errCode retVal;
     filter myFilter;
-    char buffer[1025];  //data buffer of 1K 
+    char buffer[1025] = "message";  //data buffer of 1K 
     int pwd = 0;
 
     myFilter=getArgs(argc, argv);
@@ -283,10 +283,13 @@ int main(int argc, char* argv[])
     if(isVerbose)
         printf("printf filcounter %d \n", myFilter.filterCounter);
 
-    // recv(socketDescriptor, &buffer, sizeof(buffer), 0);
+    send(socketDescriptor, &buffer, sizeof(buffer), 0);
     // printf("buffeR: %s \n", buffer);
+    // write (socketDescriptor, &buffer, sizeof(buffer));
     send(socketDescriptor, &pwd, sizeof(pwd), 0);
+
     send(socketDescriptor, &imgName, sizeof(imgName), 0); //send img name
+    
     send(socketDescriptor, &myFilter, sizeof(myFilter), 0); //send filters
     myPath();
     myWrite(socketDescriptor);

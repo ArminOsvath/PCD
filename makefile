@@ -12,7 +12,7 @@ runa4:
 	client/client -I butterfly.jpg -v 1 -b -B -c -e -G -g -h -m -s
 runall: runa1 runa2 runa3 runa4 
 
-runadmin:
+ad:
 	client/admin
 runs:
 	server/threader
@@ -41,10 +41,15 @@ server.o: server/server.c
 admin.o: client/admin.c
 	gcc client/admin.c lib/mylib.c -o client/admin
 
+unix.o: server/unix.c
+	gcc server/unix.c lib/mylib.c -o server/unix
+
 threader.o: server/threader.c
 	gcc server/server.c server/unix.c server/threader.c lib/mylib.c -l pthread -o server/threader 
 git:
 	git push -u origin main
-
+prepare: 
+	tee  ./client/output/unnamed.jpg ./server/image/unnamed.jpg ./server/output/unnamed.jpg < ./client/image/unnamed.jpg 
+	
 clean: 
 	rm -rf ./server/output/* ./server/image/* ./client/output/*

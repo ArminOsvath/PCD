@@ -458,18 +458,42 @@ void *server_main(void *str)
                 {
                     client_socket[i] = connDescriptor;
                     printf("Adding to list of sockets as %d\n" , i);  
-                    recv(client_socket[i], &pwd, sizeof(pwd), 0);
+                       break; 
+                }
+            }
+        }
+        
+        //else it's operations on sockets
+
+        for ( i = 0; i< max_clients; i++)
+        {
+            sd = client_socket[i];
+            if(FD_ISSET(sd, &readfds))
+            {
+                if((val = recv( sd , buffer, sizeof(buffer),0)) == 0)
+                {
+                    getpeername(sd , (struct sockaddr*)&client ,
+                        (socklen_t*)&len);  
+                    printf("Host disconnected , ip %s , port %d \n" , 
+                          inet_ntoa(client.sin_addr) , ntohs(client.sin_port)); 
+
+                    close (sd);
+                    client_socket[i] = 0;
+                }
+                else
+                {
+                    recv(sd, &pwd, sizeof(pwd), 0);
                     if (pwd == 0)
                     {
                         printf("Client connected \n");
-                        recv(client_socket[i], &imgName, sizeof(imgName), 0);
+                        recv(sd, &imgName, sizeof(imgName), 0);
                         printf("This is the name i received %s\n" , imgName);  
-                        recv(client_socket[i], &myFilter, sizeof(myFilter), 0); //recieve myfilter
+                        recv(sd, &myFilter, sizeof(myFilter), 0); //recieve myfilter
                         isVerbose = myFilter.isVerbose;
                         if(isVerbose)
                             printf("[Connection]: Filter counter  %d \n", myFilter.filterCounter);
                         myPath();
-                        myRead(client_socket[i]);
+                        myRead(sd);
 
                         pid = fork();
                         if(0 > pid)
@@ -497,7 +521,7 @@ void *server_main(void *str)
                         if(isVerbose)
                             printf("I should be before myDirs\n");
 
-                        myDirs(client_socket[i]);
+                        myDirs(sd);
 
                         if(isVerbose)
                             printf("I should be last\n");
@@ -506,64 +530,22 @@ void *server_main(void *str)
                     }
                     else if(pwd == 1)
                     {
-                        client_socket[i] = connDescriptor;
+                        sd = connDescriptor;
                         printf("Adding to list of sockets as %d\n" , i);
 
                         printf("Admin connected \n");
                         char buff[MAX];
-                        read(client_socket[i], buff, sizeof(buff));
+                        read(sd, buff, sizeof(buff));
                         if (strncmp("exit", buff, 4) == 0) {
                             printf("Server Exit...\n");
                             pthread_exit(NULL);
                         }
                     }
-                        break; 
-                }
-            }
-        }
-        
-        //else it's operations on sockets
-
-        for ( i = 0; i< max_clients; i++)
-        {
-            sd = client_socket[i];
-            if(FD_ISSET(sd, &readfds))
-            {
-                if((val = read( sd , buffer, 1024)) == 0)
-                {
-                    getpeername(sd , (struct sockaddr*)&client ,
-                        (socklen_t*)&len);  
-                    printf("Host disconnected , ip %s , port %d \n" , 
-                          inet_ntoa(client.sin_addr) , ntohs(client.sin_port)); 
-
-                    close (sd);
-                    client_socket[i] = 0;
-                }
-                else
-                {
-                    printf("inside else if fd_isset line 450]\n");
-                    //set the string terminating NULL byte on the end 
-                    //of the data read 
-                    // buffer[val] = '\0';  
-                    // send(sd , buffer , strlen(buffer) , 0 );  
+  
                 }
             }
         }
 
     }
-    connDescriptor = accept(socketDescriptor, (struct sockaddr*)&client, &len);
-
-    if(0 > connDescriptor)
-    {
-        verbose("[-] Connection with the client failed");
-        exit(0);
-    }
-    else
-    {
-        verbose("[+] Connection success, client connected");
-    }
-
-    
-    close(socketDescriptor);
     
 }

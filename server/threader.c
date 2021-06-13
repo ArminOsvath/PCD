@@ -13,8 +13,8 @@ int main()
     int internetport = PORT;
     pthread_create(&inet, NULL, server_main, &internetport);
 
-    pthread_join(inet,NULL);
     pthread_join(uni, NULL);
+    pthread_join(inet,NULL);
 
     return 0;
 }

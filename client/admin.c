@@ -10,6 +10,8 @@ int main(int argc, char* argv[])
 {
     int socketDescriptor;
     struct sockaddr_in servAddr;
+    char buffer[1025] = "message";  //data buffer of 1K 
+
 
     int pwd = 1;
     socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
@@ -40,6 +42,8 @@ int main(int argc, char* argv[])
     {
         verbose("[+] Connection success.");
     }
+    send(socketDescriptor, &buffer, sizeof(buffer), 0);
+
     send(socketDescriptor, &pwd, sizeof(pwd), 0);
 
     char buff[MAX]= "exit";
