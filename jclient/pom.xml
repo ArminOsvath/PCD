@@ -60,7 +60,7 @@
           <workingDirectory>.</workingDirectory>
           <arguments>
             <argument>-I</argument>
-            <argument>Img2.jpg</argument>
+            <argument>penguin.jpg</argument>
             <argument>-v</argument>
             <argument>1</argument>
             <argument>-b</argument>
@@ -68,10 +68,7 @@
             <argument>-c</argument>
             <argument>-e</argument>
             <argument>-G</argument>
-            <argument>-g</argument>
-            <argument>-h</argument>
-            <argument>-m</argument>
-            <argument>-s</argument>
+
           </arguments>
         </configuration>
       </plugin>
@@ -114,7 +111,7 @@
         <configuration>
           <configLocation>com/github/ngeor/checkstyle.xml</configLocation>
           <includeTestSourceDirectory>true</includeTestSourceDirectory>
-          <skip>${skipTests}</skip>
+          <skip>true</skip>
         </configuration>
         <executions>
           <execution>
@@ -135,6 +132,9 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco-maven-plugin.version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
         <executions>
           <execution>
             <id>pre-unit-test</id>

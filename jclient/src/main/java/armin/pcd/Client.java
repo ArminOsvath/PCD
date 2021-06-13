@@ -25,12 +25,8 @@ public final class Client {
         Path imagePath = Paths.get(image);
         Filter filter = getFilter(line);
 
-
         try (Socket socket = new Socket("localhost", 9326)) {
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-
-            byte[] imgNameBytes = new byte[2048];
-            System.arraycopy(image.getBytes(), 0, imgNameBytes, 0, image.length());
 
             String message = "message";
             byte[] messageBytes = new byte[1025];
@@ -41,6 +37,9 @@ public final class Client {
             for (int i = 0; i < 4; i++)
                 pwd[i] = 0;
             outputStream.write(pwd);
+
+            byte[] imgNameBytes = new byte[2048];
+            System.arraycopy(image.getBytes(), 0, imgNameBytes, 0, image.length());
             outputStream.write(imgNameBytes);
 
             byte[] filterBytes = new byte[16];
@@ -67,36 +66,44 @@ public final class Client {
 
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
-            byte[] newImageNameBytes = new byte[2048];
-            inputStream.read(newImageNameBytes, 0, 2048);
-            String newImageName = new String(newImageNameBytes).trim();
+            for (int i = 0; i < filter.filterCounter; i++) {
 
-            byte[] newImageSizeBytes = new byte[8];
-            inputStream.read(newImageSizeBytes, 0, 8);
-            long newImageSize = readSize(newImageSizeBytes);
+                byte[] newImageNameBytes = new byte[2048];
+                inputStream.read(newImageNameBytes, 0, 2048);
+                String newImageName = new String(newImageNameBytes).trim();
+                
+                byte[] newImageSizeBytes = new byte[8];
+                inputStream.read(newImageSizeBytes, 0, 8);
+                long newImageSize = readSize(newImageSizeBytes);
+                System.out.println("new name is: " + newImageName);
+                System.out.println("new size is: " + newImageSize);
+                System.out.println(java.util.Arrays.toString(newImageSizeBytes));
 
-            try (FileOutputStream fileOutputStream = new FileOutputStream(
-                    imagePath.toAbsolutePath().getParent().resolve(newImageName).toFile());
-                    FileChannel fileChannel = fileOutputStream.getChannel()) {
 
-                long offset = 0;
-                while (newImageSize > 0) {
-                    int bytesToRead = newImageSize > (long) Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) newImageSize;
-                    newImageSize -= bytesToRead;
-                    byte[] newImageBytes = new byte[bytesToRead];
-                    inputStream.read(newImageBytes, 0, bytesToRead);
-                    fileChannel.position(offset);
-                    fileChannel.write(ByteBuffer.wrap(newImageBytes));
-                    offset += bytesToRead;
+                try (FileOutputStream fileOutputStream = new FileOutputStream(
+                        imagePath.toAbsolutePath().getParent().resolve(newImageName).toFile());
+                        FileChannel fileChannel = fileOutputStream.getChannel()) {
+
+                    long offset = 0;
+                    while (newImageSize > 0) {
+                        int bytesToRead = newImageSize > (long) Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) newImageSize;
+                        newImageSize -= bytesToRead;
+                        byte[] newImageBytes = new byte[bytesToRead];
+                        inputStream.read(newImageBytes, 0, bytesToRead);
+                        fileChannel.position(offset);
+                        fileChannel.write(ByteBuffer.wrap(newImageBytes));
+                        offset += bytesToRead;
+                    }
                 }
+
             }
         }
     }
 
     private static long readSize(byte[] array) {
-        long size = array[0];
+        long size = array[0] >= 0 ? array[0] : 256 + array[0];
         for (int i = 1; i < 8; i++)
-            size += array[i] * 255 * i;
+            size += (array[i] >= 0 ? array[i] : 256 + array[i])  * 256 * i;
         return size;
     }
 
@@ -128,7 +135,7 @@ public final class Client {
         filter.isSobel = line.hasOption("s");
         filter.filterCounter = (int) Stream.of(filter.isBinary, filter.isBlur, filter.isContour, filter.isEqHis,
                 filter.isGblur, filter.isGray, filter.isHSV, filter.isMedian, filter.isSobel)
-                .filter(option -> option == true).count();
+                .filter(option -> option == true).count() +1;
         return filter;
     }
 

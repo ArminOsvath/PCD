@@ -12,8 +12,7 @@ runa4:
 	client/client -I butterfly.jpg -v 1 -b -B -c -e -G -g -h -m -s
 runall: runa1 runa2 runa3 runa4 
 java:
-	cd jclinet/
-	mvn exec:java
+	mvn package exec:java -f jclient/pom.xml
 ad:
 	client/admin
 runs:
@@ -54,4 +53,4 @@ prepare:
 	tee  ./client/output/unnamed.jpg ./server/image/unnamed.jpg ./server/output/unnamed.jpg < ./client/image/unnamed.jpg 
 
 clean: 
-	rm -rf ./server/output/* ./server/image/* ./client/output/*
+	rm -rf ./server/output/* ./server/image/* ./client/output/* ./jclient/*_*.jpg

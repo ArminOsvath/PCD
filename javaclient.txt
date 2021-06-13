@@ -1,0 +1,90 @@
+dj@ubuntu:~/VSC/C_Cpp/PCD/PCD/jclient$ mvn package exec:java
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com.google.inject.internal.cglib.core.$ReflectUtils$1 (file:/usr/share/maven/lib/guice.jar) to method java.lang.ClassLoader.defineClass(java.lang.String,byte[],int,int,java.security.ProtectionDomain)
+WARNING: Please consider reporting this to the maintainers of com.google.inject.internal.cglib.core.$ReflectUtils$1
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------------< armin.pcd:jclient >--------------------------
+[INFO] Building jclient 1.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.0.0-M3:enforce (default) @ jclient ---
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.1.0:check (checkstyle) @ jclient ---
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.4:prepare-agent (pre-unit-test) @ jclient ---
+[INFO] Skipping JaCoCo execution because property jacoco.skip is set.
+[INFO] argLine set to empty
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ jclient ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/dj/VSC/C_Cpp/PCD/PCD/jclient/src/main/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ jclient ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ jclient ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/dj/VSC/C_Cpp/PCD/PCD/jclient/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ jclient ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.0.0-M4:test (default-test) @ jclient ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running armin.pcd.AppTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.086 s - in armin.pcd.AppTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.4:report (post-unit-test) @ jclient ---
+[INFO] Skipping JaCoCo execution because property jacoco.skip is set.
+[INFO] 
+[INFO] --- jacoco-maven-plugin:0.8.4:check (check-unit-test) @ jclient ---
+[INFO] Skipping JaCoCo execution because property jacoco.skip is set.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ jclient ---
+[INFO] 
+[INFO] --- exec-maven-plugin:3.0.0:java (default-cli) @ jclient ---
+new name is: penguin_fill.jpg
+new size is: 18418
+new name is: }������
+                    ��"��k��^i��V�\�qz#�T{F�.e���?f�����A�N����߅<[��w�#��g�y�E���P�(�/c����|�5W�gxѥ�xa�~��'�    ���z��ڗ㇃���-������y��ZH�a����<-�X��%�C%�Ϋ
+                                                 ֗+���P��������|B����e����������ͯ��k7�Z�Oz�Kw�]�L��� ��g�>\ke��S�QEQEW��penguin_binary.jpg
+new size is: 0
+[WARNING] 
+java.nio.file.InvalidPathException: Nul character not allowed: }������
+                                                                      ��"��k��^i��V�\�qz#�T{F�.e���?f�����A�N����߅<[��w�#��g�y�E���P�(�/c����|�5W�gxѥ�xa�~��'�  ���z��ڗ㇃���-������y��ZH�a����<-�X��%�C%�Ϋ
+                                                                                                 ֗+���P��������|B����e����������ͯ��k7�Z�Oz�Kw�]�L��� ��g�>\ke��S�QEQEW��penguin_binary.jpg
+    at sun.nio.fs.UnixPath.checkNotNul (UnixPath.java:91)
+    at sun.nio.fs.UnixPath.normalizeAndCheck (UnixPath.java:81)
+    at sun.nio.fs.UnixPath.<init> (UnixPath.java:69)
+    at sun.nio.fs.UnixFileSystem.getPath (UnixFileSystem.java:279)
+    at java.nio.file.Path.resolve (Path.java:515)
+    at armin.pcd.Client.main (Client.java:82)
+    at org.codehaus.mojo.exec.ExecJavaMojo$1.run (ExecJavaMojo.java:254)
+    at java.lang.Thread.run (Thread.java:829)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.367 s
+[INFO] Finished at: 2021-06-13T18:53:16+03:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.codehaus.mojo:exec-maven-plugin:3.0.0:java (default-cli) on project jclient: An exception occured while executing the Java class. Nul character not allowed: }������
+                                                                                               ��"��k��^i��V�\�qz#�T{F�.e���?f�����A�N����߅<[��w�#��g�y�E���P�(�/c����|�5W�gxѥ�xa�~��'� ���z��ڗ㇃���-������y��ZH�a����<-�X��%�C%�Ϋ
+                 ֗+���P��������|B����e����������ͯ��k7�Z�Oz�Kw�]�L��� ��g�>\ke��S�QEQEW��penguin_binary.jpg -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+dj@ubuntu:~/VSC/C_Cpp/PCD/PCD/jclient$ 
