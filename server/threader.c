@@ -9,8 +9,8 @@ void *server_main (void *args) ;
 int main()
 {
     pthread_t inet, uni;
-    pthread_create(&uni, NULL, uni_main, UNSOCKET);
     int internetport = PORT;
+    pthread_create(&uni, NULL, uni_main, UNSOCKET);
     pthread_create(&inet, NULL, server_main, &internetport);
 
     pthread_join(uni, NULL);

@@ -24,10 +24,12 @@ int main(int argc, char* argv[])
         verbose("[+] Socket creation success");
     }
 
+
     // cleaning adress
     bzero(&servAddr, sizeof(servAddr));
 
     // seting up ip and port
+    
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = inet_addr("192.168.159.128");
     servAddr.sin_port = htons(PORT);

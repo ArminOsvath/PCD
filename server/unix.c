@@ -9,8 +9,9 @@ int unisock(const char* path)
     sd = socket (PF_LOCAL, SOCK_DGRAM, 0);
     if (sd < 0) 
     {
-       perror ("socket");
-           pthread_exit (NULL);
+        printf("[Unix]: sd < 0\n");
+       
+        pthread_exit (NULL);
 
     }
     sdname.sun_family = AF_LOCAL; 
@@ -18,47 +19,52 @@ int unisock(const char* path)
     sdname.sun_path[sizeof (sdname.sun_path) - 1] = '\0';
 
     size = SUN_LEN(&sdname);
-    /* You can use size = SUN_LEN (&name) ; instead */
 
     /* Now BIND the socket */
-    if (bind (sd, (struct sockaddr *) &sdname, size) < 0) {
+    if (bind (sd, (const struct sockaddr *) &sdname, size) < 0) {
     //    perror ("bind");
-    pthread_exit (NULL);
+        if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
+        {
+            printf("[Unix]: Error: bind failed %s\n", strerror(errno));
+            pthread_exit (NULL);
+        }
+        else 
+        {
+            printf("[Unix]: Bind success");
+        }
     }
+
+
     return 1;
 }
 
 void *uni_main(void *str)
 {
-    char *sd = (char*) str;
-    while(1)
+    const char *sd = (char*) str;
+    if(unisock(sd))
     {
-        int *status;
-        if(unisock(sd))
+        while(1)
         {
-            pid_t pid = fork();
-            if(pid == 0)
-            {
-                system("ps aux | grep server/server | grep -v 'color' > out.txt");    
-            }
-            wait(status);
+            sleep(3);
+            system("ps aux | grep server/threader | grep -v 'color' | grep -v 'grep' > out.txt"); 
             FILE* fp = fopen( "out.txt","r" );
             if (NULL != fp) {
                 fseek (fp, 0, SEEK_END);
                 int size = ftell(fp);
-                printf("\n [Unix]: before if \n");
+                fclose(fp);
+                printf("\n[Unix]: before if \n");
                 if (0 == size)
                 {
                     printf("[Unix]: file is empty\n");
-                    pid_t pid2 = fork();
-                    if (0 == pid2)
-                    {
-                        system("make runs");
-                    }
+                    system("make runs");
+                    exit(0);
                 }
             }
-            fclose(fp);
         }
     }
+        else
+        {
+            printf("[Unix]: socket fail\n");
+        }
     pthread_exit (NULL) ;
 }

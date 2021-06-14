@@ -48,7 +48,7 @@ unix.o: server/unix.c
 threader.o: server/threader.c
 	gcc server/server.c server/unix.c server/threader.c lib/mylib.c -l pthread -o server/threader 
 
-git: prepare
+git:
 	git push -u origin main
 prepare: 
 	tee  ./client/output/unnamed.jpg ./server/image/unnamed.jpg ./server/output/unnamed.jpg < ./client/image/unnamed.jpg 
