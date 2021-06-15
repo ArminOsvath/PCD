@@ -17,6 +17,8 @@ ad:
 	client/admin
 runs:
 	server/threader
+stop:
+	pkill "make"
 
 pcd: client.o threader.o mylib.o admin.o 
 
