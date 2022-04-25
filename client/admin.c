@@ -1,7 +1,7 @@
 #include "../lib/mylib.h"
 
 #define MAX 80
-#define PORT 9326
+#define PORT 8080
 #define SIZE 2048
 
 extern int isVerbose;

@@ -4,7 +4,7 @@
 #include <netinet/in.h> 
 
 #define MAX 80
-#define PORT 9326
+#define PORT 8080
 #define SIZE 2048
 #define TRUE 1
 #define FALSE 0

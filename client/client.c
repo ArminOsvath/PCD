@@ -1,7 +1,7 @@
 #include "../lib/mylib.h"
 
 #define MAX 80
-#define PORT 9326
+#define PORT 8080
 #define SIZE 2048
 // external variables
 extern int isVerbose;
@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
 
     // seting up ip and port
     servAddr.sin_family = AF_INET;
-    servAddr.sin_addr.s_addr = inet_addr("192.168.159.128");
+    servAddr.sin_addr.s_addr = inet_addr("192.168.117.129");
     servAddr.sin_port = htons(PORT);
 
     // connect to the server

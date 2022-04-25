@@ -3,6 +3,8 @@ Barbu Jonel + Osvath Armin
 
 
 Prerequisites: make
+sudo apt-get install python3-pip
+pip3 install opencv-python
 
 How to run:
 
